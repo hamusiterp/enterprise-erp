@@ -1,0 +1,141 @@
+.dashboard-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+}
+
+.dashboard-page .ant-row,
+.dashboard-page .ant-col,
+.dashboard-page .ant-card,
+.dashboard-page .ant-card-body {
+  text-align: left;
+}
+
+.dashboard-page .ant-statistic {
+  text-align: left;
+}
+
+.dashboard-page .ant-statistic-content {
+  justify-content: flex-start;
+}
+
+.dashboard-page .ant-table {
+  text-align: left;
+}
+
+.dashboard-page .ant-table-thead > tr > th,
+.dashboard-page .ant-table-tbody > tr > td {
+  text-align: left;
+}
+.dashboard-heading {
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  text-align: left;
+}
+
+.dashboard-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #155eef;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.dashboard-heading h2.ant-typography {
+  margin: 0 0 5px;
+  color: #172b4d;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+}
+
+.stat-card,
+.dashboard-card {
+  border: 1px solid #e8ecf2;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(9, 30, 66, 0.04);
+}
+
+.stat-card .ant-card-body {
+  padding: 20px;
+}
+
+.stat-card .ant-statistic-title {
+  margin-bottom: 14px;
+  color: #6b778c;
+  font-size: 13px;
+}
+
+.stat-card .ant-statistic-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #172b4d;
+  font-size: 27px;
+  font-weight: 750;
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 11px;
+  font-size: 18px;
+}
+
+.stat-icon-warning {
+  color: #d97706;
+  background: #fff7e6;
+}
+
+.stat-icon-success {
+  color: #039855;
+  background: #ecfdf3;
+}
+
+.stat-icon-primary {
+  color: #155eef;
+  background: #eef4ff;
+}
+
+.stat-icon-purple {
+  color: #7f56d9;
+  background: #f4f0ff;
+}
+
+.stat-footer {
+  margin-top: 14px;
+}
+
+.dashboard-card .ant-card-head-title > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.card-heading,
+.card-subheading {
+  display: block;
+  text-align: left;
+}
+
+.card-heading {
+  color: #172b4d;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.card-subheading {
+  margin-top: 3px;
+  color: #7a869a;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}

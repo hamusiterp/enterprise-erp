@@ -1,0 +1,150 @@
+.roles-page {
+    width: 100%;
+}
+
+.roles-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.roles-header h2 {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.page-eyebrow {
+    display: block;
+    color: #1677ff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.role-stat-card {
+    height: 100%;
+}
+
+.role-stat-card .ant-card-body {
+    padding: 22px;
+}
+
+.role-stat-card h3 {
+    margin: 2px 0 0;
+}
+
+.role-stat-icon {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #f0f5ff;
+    color: #1677ff;
+    font-size: 22px;
+}
+
+.roles-table-card {
+    margin-top: 20px;
+}
+
+.roles-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.roles-search {
+    width: 360px;
+    max-width: 100%;
+}
+
+.role-icon {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #f0f5ff;
+    color: #1677ff;
+    font-size: 17px;
+}
+
+.role-guard {
+    font-size: 12px;
+}
+
+.permission-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 10px 0 16px;
+}
+
+.permission-search {
+    width: 280px;
+    max-width: 100%;
+}
+
+.permission-groups {
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.permission-group-card {
+    margin-bottom: 14px;
+}
+
+.permission-group-card:last-child {
+    margin-bottom: 0;
+}
+
+.permission-group-card .ant-card-head {
+    min-height: 44px;
+    background: #fafafa;
+}
+
+.permission-group-card .ant-checkbox-wrapper {
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .roles-header {
+        flex-direction: column;
+    }
+
+    .roles-header > .ant-space {
+        width: 100%;
+    }
+
+    .roles-header > .ant-space .ant-btn {
+        flex: 1;
+    }
+
+    .roles-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .roles-search {
+        width: 100%;
+    }
+
+    .permission-section-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .permission-search {
+        width: 100%;
+    }
+}

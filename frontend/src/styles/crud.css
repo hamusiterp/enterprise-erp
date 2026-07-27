@@ -1,0 +1,64 @@
+.crud-page {
+    width: 100%;
+}
+
+.crud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.crud-title {
+    margin: 0 0 4px !important;
+}
+
+.crud-card {
+    border-radius: 12px;
+    box-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.05);
+}
+
+.crud-toolbar {
+    display: grid;
+    grid-template-columns:
+        minmax(250px, 380px)
+        170px
+        auto
+        auto;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.crud-card
+    .ant-table-thead
+    > tr
+    > th {
+    white-space: nowrap;
+}
+
+@media (
+    max-width: 768px
+) {
+    .crud-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .crud-header
+        .ant-space {
+        width: 100%;
+    }
+
+    .crud-header
+        .ant-btn {
+        width: 100%;
+    }
+
+    .crud-toolbar {
+        grid-template-columns:
+            1fr;
+    }
+}

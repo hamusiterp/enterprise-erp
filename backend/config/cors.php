@@ -1,9 +1,12 @@
 <?php
 
 return [
+
     'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
+        'login',
+        'logout',
     ],
 
     'allowed_methods' => ['*'],
@@ -16,9 +19,12 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Content-Disposition',
+    ],
 
     'max_age' => 0,
 
     'supports_credentials' => true,
+
 ];

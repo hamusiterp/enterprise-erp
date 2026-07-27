@@ -13,6 +13,7 @@ import RolesPage from './pages/administration/RolesPage';
 import NotFoundPage from './pages/errors/NotFoundPage';
 
 import ProtectedRoute from './routes/ProtectedRoute';
+import DepartmentsPage from './pages/organization/DepartmentsPage';
 
 export default function App() {
     return (
@@ -37,6 +38,11 @@ export default function App() {
                     <Route
                         path="/administration/roles"
                         element={<RolesPage />}
+                    />
+
+                    <Route
+                        path="/organization/departments"
+                        element={<DepartmentsPage />}
                     />
                 </Route>
             </Route>

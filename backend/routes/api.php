@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\DepartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,41 @@ Route::middleware('auth:sanctum')->group(function (): void {
         | User Management
         |--------------------------------------------------------------------------
         */
+
+        Route::get(
+            '/departments/deleted',
+            [DepartmentController::class, 'deleted']
+        );
+
+        Route::patch(
+            '/departments/{id}/restore',
+            [DepartmentController::class, 'restore']
+        );
+
+        Route::delete(
+            '/departments/{id}/force-delete',
+            [DepartmentController::class, 'forceDelete']
+        );
+
+        Route::get(
+            '/departments/export',
+            [DepartmentController::class, 'export']
+        );
+
+        Route::get(
+            '/departments/options',
+            [DepartmentController::class, 'options']
+        );
+
+        Route::patch(
+            '/departments/{department}/status',
+            [DepartmentController::class, 'changeStatus']
+        );
+
+        Route::apiResource(
+            '/departments',
+            DepartmentController::class
+        );
 
         Route::get(
             '/users/export',

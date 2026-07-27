@@ -87,11 +87,7 @@ function LoginPage() {
             <Title className="login-hero-title">
               Manage your business from one intelligent platform.
             </Title>
-
-            <Paragraph className="login-hero-description">
-              Connect departments, improve approvals, monitor operations and
-              access reliable management information from one secure system.
-            </Paragraph>
+            
 
             <div className="login-features">
               <div>

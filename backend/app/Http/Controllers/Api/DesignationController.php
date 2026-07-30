@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreDepartmentRequest;
-use App\Http\Requests\Admin\UpdateDepartmentRequest;
-use App\Http\Resources\DepartmentResource;
-use App\Models\Department;
-use App\Services\DepartmentService;
+use App\Models\Designation;
+use App\Services\DesignationService;
+use App\Http\Requests\Admin\StoreDesignationRequest;
+use App\Http\Requests\Admin\UpdateDesignationRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,10 +19,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Services\AuditLogService;
 
-class DepartmentController extends Controller
+class DesignationController extends Controller
 {
     public function __construct(
-        private readonly DepartmentService $departmentService
+        private readonly DesignationService $designationService
     ) {
     }
 
@@ -161,7 +160,7 @@ class DepartmentController extends Controller
 
         return response()->json([
             'message' =>
-                'Department created successfully.',
+                'Designation created successfully.',
 
             'data' =>
                 new DepartmentResource(
@@ -172,7 +171,7 @@ class DepartmentController extends Controller
 
     public function show(
         Request $request,
-        Department $department
+        Designation $designation
     ): JsonResponse {
         abort_unless(
             $request->user()?->can('departments.view'),
@@ -194,7 +193,7 @@ class DepartmentController extends Controller
 
     public function update(
         UpdateDepartmentRequest $request,
-        Department $department
+        Designation $designation
     ): JsonResponse {
         $department =
             $this->departmentService->update(
@@ -219,7 +218,7 @@ class DepartmentController extends Controller
 
     public function destroy(
         Request $request,
-        Department $department
+        Designation $designation
     ): JsonResponse {
         abort_unless(
             $request->user()?->can('departments.delete'),
@@ -249,7 +248,7 @@ class DepartmentController extends Controller
 
     public function changeStatus(
         Request $request,
-        Department $department
+        Designation $designation
     ): JsonResponse {
         abort_unless(
             $request->user()?->can('departments.update'),

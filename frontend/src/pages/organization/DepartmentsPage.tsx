@@ -21,6 +21,7 @@ import {
     exportDepartments,
     fetchDepartments,
     fetchDeletedDepartments,
+    fetchDepartmentStatistics,
     restoreDepartment,
     forceDeleteDepartment,
     updateDepartment,
@@ -134,6 +135,7 @@ const departmentApi = {
     fetchDeleted: fetchDeletedDepartments,
     restore: restoreDepartment,
     forceDelete: forceDeleteDepartment,
+    //fetchStatistics: fetchDepartmentStatistics,
 };
 
 export default function DepartmentsPage() {

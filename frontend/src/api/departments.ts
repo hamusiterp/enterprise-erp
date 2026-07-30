@@ -197,3 +197,33 @@ export const forceDeleteDepartment = async (id: number) => {
 
     return response.data;
 };
+
+export interface DepartmentStatistics {
+    total: number;
+    active: number;
+    inactive: number;
+    deleted: number;
+}
+
+export const fetchDepartmentStatistics =
+    async (): Promise<DepartmentStatistics> => {
+        const response = await apiClient.get(
+            '/api/admin/departments/statistics'
+        );
+
+        return response.data.data;
+    };
+
+    export interface DepartmentOption {
+    id: number;
+    department_name: string;
+}
+
+export async function fetchDepartmentOptions(): Promise<DepartmentOption[]> {
+    const response = await apiClient.get(
+        '/api/admin/departments/options'
+    );
+
+    return response.data.data;
+}
+

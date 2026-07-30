@@ -50,9 +50,16 @@ import type {
     CrudPageProps,
     CrudRecord,
     CrudStatus,
+    CrudStatisticsData,
 } from './crudTypes';
 
 import '../../styles/crud.css';
+
+import CrudStatistics from './CrudStatistics';
+
+
+
+
 
 const {
     Title,
@@ -131,6 +138,16 @@ export default function CrudPage<
 
         const { message } = App.useApp();
 
+        const [
+    statistics,
+    setStatistics,
+] = useState<CrudStatisticsData | null>(null);
+
+const [
+    statisticsLoading,
+    setStatisticsLoading,
+] = useState(false);
+
     const recycleApi =
         api as typeof api & RecycleBinApi<TRecord>;
 
@@ -207,6 +224,8 @@ export default function CrudPage<
 
     const [deletedTotal, setDeletedTotal] =
         useState(0);
+
+   
 
     const loadRecords =
         useCallback(async () => {
@@ -362,6 +381,7 @@ export default function CrudPage<
         setDrawerOpen(false);
         setSelectedRecord(null);
         form.resetFields();
+
     };
 
     const openDeletedDrawer = () => {
@@ -415,9 +435,10 @@ export default function CrudPage<
                 }
 
                 setDrawerOpen(false);
-                setSelectedRecord(
-                    null,
-                );
+        setSelectedRecord(null);
+        form.resetFields();
+
+        
 
                 if (
                     drawerMode ===
@@ -427,6 +448,7 @@ export default function CrudPage<
                 }
 
                 await loadRecords();
+                await loadStatistics();
             } catch (error) {
                 if (
                     isAntDesignValidationError(
@@ -481,6 +503,7 @@ export default function CrudPage<
                     );
                 } else {
                     await loadRecords();
+                    await loadStatistics();
                 }
             } catch (error) {
                 message.error(
@@ -526,6 +549,7 @@ export default function CrudPage<
                 );
 
                 await loadRecords();
+                await loadStatistics();
             } catch (error) {
                 message.error(
                     getErrorMessage(
@@ -535,6 +559,39 @@ export default function CrudPage<
                 );
             }
         };
+
+        const loadStatistics =
+    useCallback(async () => {
+        if (!api.fetchStatistics) {
+            return;
+        }
+
+        setStatisticsLoading(true);
+
+        try {
+            const response =
+                await api.fetchStatistics();
+
+            setStatistics(response);
+        } catch (error) {
+            message.error(
+                getErrorMessage(
+                    error,
+                    `Unable to load ${title.toLowerCase()} statistics.`,
+                ),
+            );
+        } finally {
+            setStatisticsLoading(false);
+        }
+    }, [
+        api,
+        message,
+        title,
+    ]);
+
+    useEffect(() => {
+    void loadStatistics();
+}, [loadStatistics]);
 
     const handleRestore =
         async (
@@ -567,6 +624,7 @@ export default function CrudPage<
                 }
 
                 await loadRecords();
+                await loadStatistics();
             } catch (error) {
                 message.error(
                     getErrorMessage(
@@ -605,6 +663,7 @@ export default function CrudPage<
                     );
                 } else {
                     await loadDeletedRecords();
+                    await loadStatistics();
                 }
             } catch (error) {
                 message.error(
@@ -1001,9 +1060,10 @@ export default function CrudPage<
                             <ReloadOutlined />
                         }
                         loading={loading}
-                        onClick={() =>
-                            void loadRecords()
-                        }
+                        onClick={() => {
+                            void loadRecords();
+                            void loadStatistics();
+                        }}
                     >
                         Refresh
                     </Button>
@@ -1051,10 +1111,17 @@ export default function CrudPage<
                 </Space>
             </div>
 
+            {api.fetchStatistics && (
+                <CrudStatistics
+                    data={statistics}
+                    loading={statisticsLoading}
+                />
+            )}
+
             <Card
-    variant="borderless"
-    className="crud-card"
->
+                variant="borderless"
+                className="crud-card"
+            >
                 <div className="crud-toolbar">
                     <Input
                         allowClear

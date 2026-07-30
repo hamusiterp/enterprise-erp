@@ -14,6 +14,8 @@ import NotFoundPage from './pages/errors/NotFoundPage';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import DepartmentsPage from './pages/organization/DepartmentsPage';
+import DesignationsPage from './pages/organization/DesignationsPage';
+import BanksPage from './pages/administration/banks';
 
 export default function App() {
     return (
@@ -40,10 +42,21 @@ export default function App() {
                         element={<RolesPage />}
                     />
 
+                    
+
                     <Route
                         path="/organization/departments"
                         element={<DepartmentsPage />}
                     />
+
+                    <Route
+                        path="/organization/designations"
+                        element={<DesignationsPage />}
+                    />
+                    <Route
+  path="/administration/banks"
+  element={<BanksPage />}
+/>
                 </Route>
             </Route>
 

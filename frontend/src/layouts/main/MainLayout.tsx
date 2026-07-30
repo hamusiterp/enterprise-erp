@@ -11,6 +11,8 @@ import {
     SettingOutlined,
     TeamOutlined,
     UserOutlined,
+    IdcardOutlined,
+
 } from '@ant-design/icons';
 
 import {
@@ -149,6 +151,12 @@ export default function MainLayout() {
                             label:
                                 'Permissions',
                         },
+
+                        {
+      key: '/administration/banks',
+      icon: <BankOutlined />,
+      label: 'Banks',
+    },
                     ],
                 },
 
@@ -178,6 +186,14 @@ export default function MainLayout() {
                             label:
                                 'Departments',
                         },
+
+                        {
+                            key: '/organization/designations',
+                            icon: <IdcardOutlined />,
+                            label: 'Designations',
+                        },
+
+                        
                     ],
                 },
             ],

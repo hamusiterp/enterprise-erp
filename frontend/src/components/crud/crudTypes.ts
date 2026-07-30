@@ -48,6 +48,9 @@ export interface CrudApi<
         parameters: CrudListParameters,
     ) => Promise<CrudListResponse<TRecord>>;
 
+    fetchStatistics?: () =>
+    Promise<CrudStatisticsData>;
+
     create: (
         values: TFormValues,
     ) => Promise<unknown>;
@@ -108,4 +111,11 @@ export interface CrudPageProps<
     defaultSortBy?: string;
 
     canChangeStatus?: boolean;
+}
+
+export interface CrudStatisticsData {
+    total: number;
+    active: number;
+    inactive: number;
+    deleted: number;
 }

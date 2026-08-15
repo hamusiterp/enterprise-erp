@@ -29,18 +29,26 @@ export interface DataTableChangeParams<T> {
 }
 
 interface DataTableProps<T extends object> {
-  columns: TableColumnsType<T>;
-  data: T[];
-  loading?: boolean;
-  rowKey?: string | ((record: T) => Key);
-  pagination?: DataTablePagination;
-  onChange?: (
-    params: DataTableChangeParams<T>,
-  ) => void;
-  emptyText?: ReactNode;
-  scrollX?: number | string | true;
-  rowSelection?: TableProps<T>['rowSelection'];
-  size?: TableProps<T>['size'];
+    columns: TableColumnsType<T>;
+    data: T[];
+    loading?: boolean;
+    rowKey?: string | ((record: T) => Key);
+
+    pagination?: DataTablePagination | false;
+
+    onChange?: (
+        params: DataTableChangeParams<T>,
+    ) => void;
+
+    emptyText?: ReactNode;
+
+    scrollX?: number | string | true;
+
+    scroll?: TableProps<T>['scroll'];
+
+    rowSelection?: TableProps<T>['rowSelection'];
+
+    size?: TableProps<T>['size'];
 }
 
 function DataTable<T extends object>({
@@ -52,6 +60,7 @@ function DataTable<T extends object>({
   onChange,
   emptyText = 'No records found',
   scrollX = 'max-content',
+  scroll,
   rowSelection,
   size = 'middle',
 }: DataTableProps<T>) {
@@ -94,18 +103,19 @@ function DataTable<T extends object>({
 
   const tablePagination:
     | TablePaginationConfig
-    | false = pagination
-    ? {
-        current: pagination.current,
-        pageSize: pagination.pageSize,
-        total: pagination.total,
-        showSizeChanger: true,
-        showQuickJumper: true,
-        pageSizeOptions: [10, 20, 50, 100],
-        showTotal: (total, range) =>
-          `${range[0]}-${range[1]} of ${total} records`,
-      }
-    : false;
+    | false =
+    pagination
+        ? {
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              pageSizeOptions: [10, 20, 50, 100],
+              showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} records`,
+          }
+        : false;
 
   return (
     <Table<T>
@@ -117,7 +127,7 @@ function DataTable<T extends object>({
       onChange={handleChange}
       rowSelection={rowSelection}
       size={size}
-      scroll={{ x: scrollX }}
+      scroll={scroll ?? { x: scrollX }}
       locale={{
         emptyText: (
           <Empty

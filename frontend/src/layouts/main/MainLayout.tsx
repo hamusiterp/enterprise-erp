@@ -12,6 +12,11 @@ import {
     TeamOutlined,
     UserOutlined,
     IdcardOutlined,
+    ShoppingOutlined,
+    ProjectOutlined,
+    CarOutlined,
+    UserSwitchOutlined,
+    FileProtectOutlined,
 
 } from '@ant-design/icons';
 
@@ -35,6 +40,12 @@ import {
 } from 'react-router';
 
 import { useAuth } from '../../features/auth/AuthContext';
+
+import { TagsOutlined } from '@ant-design/icons';
+
+import {
+  ShopOutlined,
+}from '@ant-design/icons';
 
 const {
     Header,
@@ -153,10 +164,54 @@ export default function MainLayout() {
                         },
 
                         {
-      key: '/administration/banks',
-      icon: <BankOutlined />,
-      label: 'Banks',
-    },
+                        key: '/administration/categories',
+                        icon: <TagsOutlined />,
+                        label: 'Categories',
+                    },
+
+                        {
+                        key: '/administration/banks',
+                        icon: <BankOutlined />,
+                        label: 'Banks',
+                        },
+                        {
+                            key: '/administration/items',
+                            icon: <ShoppingOutlined />,
+                            label: 'Items',
+                        },
+
+                        {
+                        key: '/administration/projects',
+                        icon: <ProjectOutlined />,
+                        label: 'Projects',
+                        },
+
+                        {
+                        key: '/administration/suppliers',
+                        icon: <ShopOutlined />,
+                        label: 'Suppliers',
+                        },
+                        {
+                        key: '/administration/customers',
+                        icon: <TeamOutlined />,
+                        label: 'Customers',
+                        },
+                        {
+                        key: '/administration/fixed-assets',
+                        icon: <CarOutlined />,
+                        label: 'Fixed Assets',
+                        },
+                        {
+                        key: '/administration/purchasers',
+                        icon: <UserSwitchOutlined />,
+                        label: 'Purchasers',
+                        },
+                        {
+                        key: '/administration/subcontractors',
+                        icon: <TeamOutlined />,
+                        label: 'Subcontractors',
+                        }
+                        
                     ],
                 },
 
@@ -191,6 +246,25 @@ export default function MainLayout() {
                             key: '/organization/designations',
                             icon: <IdcardOutlined />,
                             label: 'Designations',
+                        },
+
+                        
+                    ],
+                },
+
+                {
+                    key: 'cheques',
+                    icon: (
+                        <ApartmentOutlined />
+                    ),
+                    label: 'Cheques',
+
+                    children: [
+                        
+                        {
+                        key: '/cheques',
+                        icon: <FileProtectOutlined />,
+                        label: 'Cheques',
                         },
 
                         

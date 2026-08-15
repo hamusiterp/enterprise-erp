@@ -21,7 +21,6 @@ import {
     exportDepartments,
     fetchDepartments,
     fetchDeletedDepartments,
-    fetchDepartmentStatistics,
     restoreDepartment,
     forceDeleteDepartment,
     updateDepartment,

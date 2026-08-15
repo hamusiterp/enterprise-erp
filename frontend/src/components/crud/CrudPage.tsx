@@ -1489,18 +1489,13 @@ function applyBackendErrors<
     }
 
     form.setFields(
-        Object.entries(
-            response.errors,
-        ).map(
-            ([
-                name,
-                errors,
-            ]) => ({
-                name,
-                errors,
-            }),
-        ),
-    );
+    Object.entries(
+        response.errors,
+    ).map(([name, errors]) => ({
+        name: [name] as any,
+        errors,
+    })),
+);
 }
 
 function getErrorMessage(

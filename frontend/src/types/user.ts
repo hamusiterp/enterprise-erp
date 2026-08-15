@@ -47,3 +47,23 @@ export interface UserListResponse {
   data: SystemUser[];
   meta: PaginationMeta;
 }
+
+export interface UserFilters {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    status?: UserStatus;
+    role?: string;
+    sort_by?: string;
+    sort_direction?: 'asc' | 'desc';
+}
+
+export interface PaginatedUsersResponse {
+    data: SystemUser[];
+
+    meta: PaginationMeta;
+}
+
+export interface RolesResponse {
+    data: Role[];
+}

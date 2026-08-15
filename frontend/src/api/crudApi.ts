@@ -217,10 +217,14 @@ export function createCrudApi<
       }
     }
 
+    const contentType =
+    response.headers['content-type'];
+
     const blob = new Blob([response.data], {
-      type:
-        response.headers['content-type'] ??
-        'application/octet-stream',
+        type:
+            typeof contentType === 'string'
+                ? contentType
+                : 'application/octet-stream',
     });
 
     const downloadUrl =

@@ -32,6 +32,7 @@ function FormDrawer({
     <Drawer
       title={title}
       open={open}
+      width={width}
       size="large"
       destroyOnHidden
       maskClosable={!loading}

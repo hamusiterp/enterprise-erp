@@ -35,3 +35,5 @@ export interface BaseListFilters {
   page?: number;
   per_page?: number;
 }
+
+export type ListFilters = BaseListFilters;

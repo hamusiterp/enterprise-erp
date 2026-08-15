@@ -30,12 +30,7 @@ export interface DepartmentListParams {
     per_page?: number;
     search?: string;
     status?: DepartmentStatus | '';
-    sort_by?:
-        | 'department_id'
-        | 'department_name'
-        | 'status'
-        | 'created_at'
-        | 'updated_at';
+    sort_by?: string;
     sort_order?: 'asc' | 'desc';
 }
 

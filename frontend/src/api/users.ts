@@ -17,17 +17,17 @@ interface MessageResponse {
   message: string;
 }
 
-function removeEmptyParameters(
-  parameters: Record<string, unknown>,
+function removeEmptyParameters<T extends object>(
+    parameters: T,
 ): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(parameters).filter(
-      ([, value]) =>
-        value !== undefined &&
-        value !== null &&
-        value !== '',
-    ),
-  );
+    return Object.fromEntries(
+        Object.entries(parameters).filter(
+            ([, value]) =>
+                value !== undefined &&
+                value !== null &&
+                value !== '',
+        ),
+    );
 }
 
 export async function fetchUsers(

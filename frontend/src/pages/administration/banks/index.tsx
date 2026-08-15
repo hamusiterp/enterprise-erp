@@ -18,9 +18,7 @@ import {
   Typography,  
 } from 'antd';
 
-import type {
-  TableProps,
-} from 'antd';
+
 
 import {
   PlusOutlined,
@@ -52,26 +50,7 @@ type DrawerMode =
   | 'edit'
   | 'view';
 
-const defaultFormValues: Partial<BankFormValues> = {
-  status: 'active',
-  od_available: 'No',
-  term_loan: 'No',
-  min_amount: '0.00',
-  transfer_rate: '0.00',
-  od_limit: '',
-  repayment_amount_left: '',
-  term_loan_relief: 'No',
-  term_loan_relief_start_date: '',
-  term_loan_relief_end_date: '',
-  cob_balance: '',
-  last_activity: '',
-  suggestion: '',
-  end_balance: '',
-  loan_status: 'Not Available',
-  credit_suggestion: '',
-  category: '',
-  start_month: '',
-};
+
 
 function normalizeText(
   value?: string | null,
@@ -163,115 +142,7 @@ function BanksPage() {
     void loadBanks();
   }, [loadBanks]);
 
-  const setBankFormValues = (
-    bank: Bank,
-  ) => {
-    form.setFieldsValue({
-      bank_id: bank.bank_id,
-      bank_name: bank.bank_name,
-      bank_name_orginal:
-        bank.bank_name_orginal,
-
-      account_no: bank.account_no,
-      branch: bank.branch,
-      contact_address:
-        bank.contact_address,
-
-      begnning_amount:
-  bank.begnning_amount !== null &&
-  bank.begnning_amount !== undefined
-    ? Number(bank.begnning_amount)
-    : undefined,
-
-      begnning__amount_left:
-  bank.begnning__amount_left !== null &&
-  bank.begnning__amount_left !== undefined
-    ? Number(bank.begnning__amount_left)
-    : undefined,
-
-      od_available:
-        bank.od_available,
-      start_date: bank.start_date,
-      end_date: bank.end_date,
-
-      od_amount:
-  bank.od_amount !== null &&
-  bank.od_amount !== undefined
-    ? Number(bank.od_amount)
-    : undefined,
-
-      od_amount_left:
-  bank.od_amount_left !== null &&
-  bank.od_amount_left !== undefined
-    ? Number(bank.od_amount_left)
-    : undefined,
-
-      min_amount:
-  bank.min_amount !== null &&
-  bank.min_amount !== undefined
-    ? Number(bank.min_amount)
-    : undefined,
-
-      od_limit: bank.od_limit,
-      od_status: bank.od_status,
-
-      term_loan: bank.term_loan,
-      term_loan_start_date:
-        bank.term_loan_start_date,
-      term_loan_end_date:
-        bank.term_loan_end_date,
-
-      term_loan_amount:
-  bank.term_loan_amount !== null &&
-  bank.term_loan_amount !== undefined
-    ? Number(bank.term_loan_amount)
-    : undefined,
-
-      transfer_rate:
-  bank.transfer_rate !== null &&
-  bank.transfer_rate !== undefined
-    ? Number(bank.transfer_rate)
-    : undefined,
-
-      repayment_amount:
-  bank.repayment_amount !== null &&
-  bank.repayment_amount !== undefined
-    ? Number(bank.repayment_amount)
-    : undefined,
-
-      repayment_amount_left:
-        bank.repayment_amount_left,
-
-      term_loan_relief:
-        bank.term_loan_relief,
-      term_loan_relief_start_date:
-        bank.term_loan_relief_start_date,
-      term_loan_relief_end_date:
-        bank.term_loan_relief_end_date,
-
-      period: bank.period,
-      ethiopian_date:
-        bank.ethiopian_date,
-      date_registered:
-        bank.date_registered,
-
-      cob_balance:
-        bank.cob_balance,
-      status: bank.status,
-      last_activity:
-        bank.last_activity,
-      suggestion: bank.suggestion,
-      end_balance:
-        bank.end_balance,
-      loan_status:
-        bank.loan_status,
-      credit_suggestion:
-        bank.credit_suggestion,
-      category: bank.category,
-      start_month:
-        bank.start_month,
-    });
-  };
+  
 
   const handleTableChange = (
     params: DataTableChangeParams<Bank>,

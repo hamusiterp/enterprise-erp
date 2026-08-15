@@ -28,8 +28,8 @@ interface ActionResponse {
     message: string;
 }
 
-function removeEmptyParameters(
-    parameters: Record<string, unknown>,
+function removeEmptyParameters<T extends object>(
+    parameters: T,
 ): Record<string, unknown> {
     return Object.fromEntries(
         Object.entries(parameters).filter(

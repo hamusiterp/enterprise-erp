@@ -10,19 +10,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('departments', 'deleted_at')) {
-            Schema::table('departments', function (Blueprint $table): void {
-                $table->softDeletes();
-            });
-        }
+        Schema::create('departments', function (Blueprint $table): void {
+            $table->id();
+
+            $table->string('department_id')->unique();
+            $table->string('department_name');
+
+            $table->string('status', 20)
+                ->default('active');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('department_name');
+            $table->index('status');
+        });
     }
 
     public function down(): void
     {
-        if (Schema::hasColumn('departments', 'deleted_at')) {
-            Schema::table('departments', function (Blueprint $table): void {
-                $table->dropSoftDeletes();
-            });
-        }
+        Schema::dropIfExists('departments');
     }
 };

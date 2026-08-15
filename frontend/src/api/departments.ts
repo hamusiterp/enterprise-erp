@@ -8,16 +8,13 @@ import type {
     DepartmentStatus,
 } from '../types/department';
 
-function removeEmptyParameters(
-    parameters: Record<
-        string,
-        unknown
-    >,
+export function removeEmptyParameters<
+    T extends object,
+>(
+    parameters: T,
 ): Record<string, unknown> {
     return Object.fromEntries(
-        Object.entries(
-            parameters,
-        ).filter(
+        Object.entries(parameters).filter(
             ([, value]) =>
                 value !== undefined &&
                 value !== null &&

@@ -1,0 +1,17 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+
+# Mobile local env
+.env
+.env.local
+
+# Native folders if generated locally
+android/
+ios/
+
+# ERP folders not needed for mobile build
+../backend/
+../frontend/

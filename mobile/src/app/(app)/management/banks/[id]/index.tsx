@@ -24,135 +24,117 @@ import {
 
 import {
   Colors,
-} from '../../../../constants/colors';
+} from '../../../../../constants/colors';
 
 import {
   Fonts,
-} from '../../../../constants/fonts';
+} from '../../../../../constants/fonts';
 
 import {
-  Item,
-  itemsApi,
-} from '../../../../api/itemsApi';
+  Bank,
+  banksApi,
+} from '../../../../../api/banksApi';
 
 
-export default function ItemDetailsScreen() {
-
+export default function BankDetailsScreen() {
   const params =
     useLocalSearchParams();
 
   const rawId =
-    Array.isArray(params.id)
-      ? params.id[0]
-      : params.id;
+  Array.isArray(params.id)
+    ? params.id[0]
+    : params.id;
 
-  const itemId =
-    Number(rawId);
+const bankId =
+  Number(rawId);
 
   const [
-    item,
-    setItem,
-  ] =
-    useState<Item | null>(
-      null
-    );
+    bank,
+    setBank,
+  ] = useState<Bank | null>(null);
 
   const [
     loading,
     setLoading,
-  ] =
-    useState(true);
+  ] = useState(true);
 
   const [
     changingStatus,
     setChangingStatus,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   const [
     deleting,
     setDeleting,
-  ] =
-    useState(false);
+  ] = useState(false);
 
 
   /*
   |--------------------------------------------------------------------------
-  | Load Item
+  | Load Bank
   |--------------------------------------------------------------------------
   */
 
-  const loadItem =
-    useCallback(async () => {
+  const loadBank =
+  useCallback(async () => {
 
-      if (
-        !rawId ||
-        Number.isNaN(itemId)
-      ) {
+    if (
+      !rawId ||
+      Number.isNaN(bankId)
+    ) {
+      console.log(
+        'Invalid bank route id:',
+        params.id
+      );
 
-        console.log(
-          'Invalid item route id:',
-          params.id
+      Alert.alert(
+        'Invalid bank',
+        'The bank ID is missing or invalid.'
+      );
+
+      setLoading(false);
+
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data =
+        await banksApi.get(
+          bankId
         );
 
-        setLoading(false);
+      setBank(data);
 
-        return;
-      }
+    } catch (error: any) {
 
-      try {
+      console.log(
+        'Bank details error:',
+        error?.response?.data ??
+        error
+      );
 
-        setLoading(true);
+      Alert.alert(
+        'Unable to load bank',
+        error?.response?.data?.message ??
+        'Bank information could not be loaded.'
+      );
 
-        const data =
-          await itemsApi.get(
-            itemId
-          );
+    } finally {
+      setLoading(false);
+    }
 
-        setItem(data);
+  }, [
+    bankId,
+    rawId,
+  ]);
 
-      } catch (error: any) {
-
-        console.log(
-          'Item details error:',
-          error?.response?.data ??
-          error
-        );
-
-        Alert.alert(
-          'Unable to load item',
-          getApiErrorMessage(
-            error,
-            'Item information could not be loaded.'
-          )
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    }, [
-      itemId,
-      rawId,
-    ]);
-
-
-  /*
-  |--------------------------------------------------------------------------
-  | Reload After Edit
-  |--------------------------------------------------------------------------
-  */
 
   useFocusEffect(
     useCallback(() => {
-
-      loadItem();
-
-    }, [
-      loadItem,
-    ])
+      loadBank();
+    }, [loadBank])
   );
 
 
@@ -162,54 +144,48 @@ export default function ItemDetailsScreen() {
   |--------------------------------------------------------------------------
   */
 
-  const confirmStatusChange =
-    () => {
+  const confirmStatusChange = () => {
+    if (
+      !bank ||
+      changingStatus
+    ) {
+      return;
+    }
 
-      if (
-        !item ||
-        changingStatus
-      ) {
-        return;
-      }
+    const newStatus =
+      bank.status === 'active'
+        ? 'inactive'
+        : 'active';
 
-      const newStatus =
-        item.status ===
-        'active'
-          ? 'inactive'
-          : 'active';
+    Alert.alert(
+      newStatus === 'active'
+        ? 'Activate Bank'
+        : 'Deactivate Bank',
 
+      newStatus === 'active'
+        ? `Activate ${bank.bank_name}?`
+        : `Deactivate ${bank.bank_name}?`,
 
-      Alert.alert(
-        newStatus === 'active'
-          ? 'Activate Item'
-          : 'Deactivate Item',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
 
-        newStatus === 'active'
-          ? `Activate ${item.item_description}?`
-          : `Deactivate ${item.item_description}?`,
+        {
+          text:
+            newStatus === 'active'
+              ? 'Activate'
+              : 'Deactivate',
 
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-
-          {
-            text:
-              newStatus ===
-              'active'
-                ? 'Activate'
-                : 'Deactivate',
-
-            onPress: () =>
-              changeStatus(
-                newStatus
-              ),
-          },
-        ]
-      );
-
-    };
+          onPress: () =>
+            changeStatus(
+              newStatus
+            ),
+        },
+      ]
+    );
+  };
 
 
   const changeStatus =
@@ -218,52 +194,45 @@ export default function ItemDetailsScreen() {
         | 'active'
         | 'inactive'
     ) => {
-
-      if (!item) {
+      if (!bank) {
         return;
       }
 
       try {
-
         setChangingStatus(true);
 
         const updated =
-          await itemsApi.changeStatus(
-            item.id,
-            status
-          );
+          await banksApi
+            .changeStatus(
+              bank.id,
+              status
+            );
 
-        setItem(updated);
+        setBank(updated);
 
         Alert.alert(
           'Status updated',
           status === 'active'
-            ? 'The item is now active.'
-            : 'The item is now inactive.'
+            ? 'The bank is now active.'
+            : 'The bank is now inactive.'
         );
 
       } catch (error: any) {
-
         console.log(
-          'Item status error:',
+          'Bank status error:',
           error?.response?.data ??
           error
         );
 
         Alert.alert(
           'Unable to update status',
-          getApiErrorMessage(
-            error,
-            'The item status could not be changed.'
-          )
+          error?.response?.data?.message ??
+          'The bank status could not be changed.'
         );
 
       } finally {
-
         setChangingStatus(false);
-
       }
-
     };
 
 
@@ -273,56 +242,51 @@ export default function ItemDetailsScreen() {
   |--------------------------------------------------------------------------
   */
 
-  const confirmDelete =
-    () => {
+  const confirmDelete = () => {
+    if (
+      !bank ||
+      deleting
+    ) {
+      return;
+    }
 
-      if (
-        !item ||
-        deleting
-      ) {
-        return;
-      }
+    Alert.alert(
+      'Delete Bank',
+      `Are you sure you want to delete ${bank.bank_name}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
 
-      Alert.alert(
-        'Delete Item',
-        `Are you sure you want to delete ${item.item_description}?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
+        {
+          text: 'Delete',
+          style: 'destructive',
 
-          {
-            text: 'Delete',
-            style: 'destructive',
-
-            onPress: () =>
-              deleteItem(),
-          },
-        ]
-      );
-
-    };
+          onPress: () =>
+            deleteBank(),
+        },
+      ]
+    );
+  };
 
 
-  const deleteItem =
+  const deleteBank =
     async () => {
-
-      if (!item) {
+      if (!bank) {
         return;
       }
 
       try {
-
         setDeleting(true);
 
-        await itemsApi.remove(
-          item.id
+        await banksApi.remove(
+          bank.id
         );
 
         Alert.alert(
-          'Item deleted',
-          'The item has been moved to the recycle bin.',
+          'Bank deleted',
+          'The bank has been moved to deleted records.',
           [
             {
               text: 'OK',
@@ -333,27 +297,21 @@ export default function ItemDetailsScreen() {
         );
 
       } catch (error: any) {
-
         console.log(
-          'Item delete error:',
+          'Bank delete error:',
           error?.response?.data ??
           error
         );
 
         Alert.alert(
           'Delete failed',
-          getApiErrorMessage(
-            error,
-            'Unable to delete the item.'
-          )
+          error?.response?.data?.message ??
+          'Unable to delete the bank.'
         );
 
       } finally {
-
         setDeleting(false);
-
       }
-
     };
 
 
@@ -364,40 +322,28 @@ export default function ItemDetailsScreen() {
   */
 
   if (loading) {
-
     return (
       <SafeAreaView
-        style={
-          styles.safeArea
-        }
+        style={styles.safeArea}
       >
-
         <View
           style={
             styles.loadingContainer
           }
         >
-
           <ActivityIndicator
             size="large"
-            color={
-              Colors.primary
-            }
+            color={Colors.primary}
           />
 
           <Text
-            style={
-              styles.loadingText
-            }
+            style={styles.loadingText}
           >
-            Loading item...
+            Loading bank...
           </Text>
-
         </View>
-
       </SafeAreaView>
     );
-
   }
 
 
@@ -407,27 +353,20 @@ export default function ItemDetailsScreen() {
   |--------------------------------------------------------------------------
   */
 
-  if (!item) {
-
+  if (!bank) {
     return (
       <SafeAreaView
-        style={
-          styles.safeArea
-        }
+        style={styles.safeArea}
       >
-
         <View
           style={
             styles.loadingContainer
           }
         >
-
           <Ionicons
-            name="cube-outline"
+            name="business-outline"
             size={42}
-            color={
-              Colors.textMuted
-            }
+            color={Colors.textMuted}
           />
 
           <Text
@@ -435,20 +374,17 @@ export default function ItemDetailsScreen() {
               styles.notFoundTitle
             }
           >
-            Item not found
+            Bank not found
           </Text>
-
 
           <Pressable
             style={
               styles.goBackButton
             }
-
             onPress={() =>
               router.back()
             }
           >
-
             <Text
               style={
                 styles.goBackText
@@ -456,40 +392,25 @@ export default function ItemDetailsScreen() {
             >
               Go Back
             </Text>
-
           </Pressable>
-
         </View>
-
       </SafeAreaView>
     );
-
   }
 
 
-  const active =
-    item.status ===
-    'active';
+  const isActive =
+    bank.status === 'active';
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | UI
-  |--------------------------------------------------------------------------
-  */
 
   return (
     <SafeAreaView
-      style={
-        styles.safeArea
-      }
+      style={styles.safeArea}
     >
-
       <ScrollView
         contentContainerStyle={
           styles.container
         }
-
         showsVerticalScrollIndicator={
           false
         }
@@ -497,78 +418,50 @@ export default function ItemDetailsScreen() {
 
         {/* HEADER */}
 
-        <View
-          style={
-            styles.header
-          }
-        >
+        <View style={styles.header}>
 
           <Pressable
-            style={
-              styles.backButton
-            }
-
+            style={styles.backButton}
             onPress={() =>
               router.back()
             }
           >
-
             <Ionicons
               name="arrow-back"
               size={22}
-              color={
-                Colors.text
-              }
+              color={Colors.text}
             />
-
           </Pressable>
-
 
           <View
             style={
               styles.headerContent
             }
           >
-
-            <Text
-              style={
-                styles.title
-              }
-            >
-              Item Details
+            <Text style={styles.title}>
+              Bank Details
             </Text>
 
             <Text
-              style={
-                styles.subtitle
-              }
+              style={styles.subtitle}
             >
-              Product & inventory information
+              Banking & credit setup
             </Text>
-
           </View>
 
-
           <Pressable
-            style={
-              styles.editButton
-            }
-
+            style={styles.editButton}
             onPress={() =>
               router.push(
-                `/(app)/administration/items/${item.id}/edit` as any
+                `/(app)/management/banks/${bank.id}/edit` as any
               )
             }
           >
-
             <Ionicons
               name="create-outline"
               size={21}
-              color={
-                Colors.primary
-              }
+              color={Colors.primary}
             />
-
           </Pressable>
 
         </View>
@@ -577,63 +470,50 @@ export default function ItemDetailsScreen() {
         {/* HERO */}
 
         <View
-          style={
-            styles.heroCard
-          }
+          style={styles.heroCard}
         >
-
           <View
-            style={
-              styles.heroIcon
-            }
+            style={styles.heroIcon}
           >
-
             <Ionicons
-              name="cube-outline"
-              size={35}
-              color={
-                Colors.primary
-              }
+              name="business-outline"
+              size={34}
+              color={Colors.primary}
             />
-
           </View>
 
-
           <Text
-            style={
-              styles.itemDescription
-            }
+            style={styles.bankName}
           >
-            {
-              item.item_description
-            }
+            {bank.bank_name}
           </Text>
 
-
           <Text
-            style={
-              styles.itemNumber
-            }
+            style={styles.bankCode}
           >
-            {item.item_no}
+            {bank.bank_id}
           </Text>
 
+          <Text
+            style={styles.accountNo}
+          >
+            {bank.account_no}
+          </Text>
 
           <View
             style={[
               styles.statusBadge,
 
-              active
+              isActive
                 ? styles.activeBadge
                 : styles.inactiveBadge,
             ]}
           >
-
             <View
               style={[
                 styles.statusDot,
 
-                active
+                isActive
                   ? styles.activeDot
                   : styles.inactiveDot,
               ]}
@@ -643,185 +523,461 @@ export default function ItemDetailsScreen() {
               style={[
                 styles.statusText,
 
-                active
+                isActive
                   ? styles.activeText
                   : styles.inactiveText,
               ]}
             >
-              {
-                active
-                  ? 'Active'
-                  : 'Inactive'
-              }
+              {isActive
+                ? 'Active'
+                : 'Inactive'}
             </Text>
-
           </View>
-
         </View>
 
 
-        {/* ITEM INFORMATION */}
+        {/* BASIC INFORMATION */}
 
         <SectionTitle
-          title="Item Information"
+          title="Basic Information"
         />
 
-        <View
-          style={
-            styles.infoCard
-          }
-        >
+        <View style={styles.infoCard}>
 
           <InfoRow
             icon="barcode-outline"
-            label="Item Number"
-            value={
-              item.item_no
-            }
+            label="Bank ID"
+            value={bank.bank_id}
           />
 
           <Divider />
 
-
           <InfoRow
-            icon="cube-outline"
-            label="Description"
-            value={
-              item.item_description
-            }
+            icon="business-outline"
+            label="Bank Name"
+            value={bank.bank_name}
           />
 
-          <Divider />
-
-
-          <InfoRow
-            icon="folder-outline"
-            label="Category"
-            value={
-              item.category ||
-              'Not assigned'
-            }
-          />
-
-          <Divider />
-
-
-          <InfoRow
-            icon="layers-outline"
-            label="Unit"
-            value={
-              item.unit ||
-              'Not assigned'
-            }
-          />
-
-          <Divider />
-
-
-          <InfoRow
-            icon="pricetag-outline"
-            label="Type"
-            value={
-              item.type ||
-              'Not assigned'
-            }
-          />
-
-          <Divider />
-
-
-          <InfoRow
-            icon="archive-outline"
-            label="Inventory"
-            value={
-              item.inventory ||
-              'Not assigned'
-            }
-          />
-
-          <Divider />
-
-
-          <InfoRow
-            icon="calendar-outline"
-            label="Product Date"
-            value={
-              formatDate(
-                item.product_date
-              )
-            }
-          />
-
-        </View>
-
-
-        {/* REGISTRATION */}
-
-        <SectionTitle
-          title="Registration"
-        />
-
-        <View
-          style={
-            styles.infoCard
-          }
-        >
-
-          <InfoRow
-            icon="person-outline"
-            label="Registered By"
-            value={
-              item.registered_by ||
-              'System'
-            }
-          />
-
-          <Divider />
-
-
-          <InfoRow
-            icon="calendar-number-outline"
-            label="Date Registered"
-            value={
-              formatDate(
-                item.date_registered
-              )
-            }
-          />
-
-
-          {item.created_at && (
+          {bank.bank_name_orginal ? (
             <>
               <Divider />
 
               <InfoRow
-                icon="add-circle-outline"
-                label="Created"
+                icon="text-outline"
+                label="Original Name"
                 value={
-                  formatDateTime(
-                    item.created_at
+                  bank.bank_name_orginal
+                }
+              />
+            </>
+          ) : null}
+
+          <Divider />
+
+          <InfoRow
+            icon="card-outline"
+            label="Account Number"
+            value={bank.account_no}
+          />
+
+          <Divider />
+
+          <InfoRow
+            icon="location-outline"
+            label="Branch"
+            value={bank.branch}
+          />
+
+          {bank.contact_address ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="call-outline"
+                label="Contact Address"
+                value={
+                  bank.contact_address
+                }
+              />
+            </>
+          ) : null}
+
+        </View>
+
+
+        {/* FINANCIAL SETUP */}
+
+        <SectionTitle
+          title="Financial Setup"
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="wallet-outline"
+            label="Beginning Amount"
+            value={
+              formatAmount(
+                bank.begnning_amount
+              )
+            }
+          />
+
+          <Divider />
+
+          <InfoRow
+            icon="cash-outline"
+            label="Beginning Amount Left"
+            value={
+              formatAmount(
+                bank.begnning__amount_left
+              )
+            }
+          />
+
+          <Divider />
+
+          <InfoRow
+            icon="remove-circle-outline"
+            label="Minimum Amount"
+            value={
+              formatAmount(
+                bank.min_amount
+              )
+            }
+          />
+
+          <Divider />
+
+          <InfoRow
+            icon="swap-horizontal-outline"
+            label="Transfer Rate"
+            value={
+              formatAmount(
+                bank.transfer_rate
+              )
+            }
+          />
+
+        </View>
+
+
+        {/* OVERDRAFT */}
+
+        <SectionTitle
+          title="Overdraft Facility"
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="card-outline"
+            label="OD Available"
+            value={bank.od_available}
+          />
+
+          {bank.od_available ===
+          'Yes' ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="cash-outline"
+                label="OD Amount"
+                value={
+                  formatAmount(
+                    bank.od_amount
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="wallet-outline"
+                label="OD Amount Left"
+                value={
+                  formatAmount(
+                    bank.od_amount_left
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="speedometer-outline"
+                label="OD Limit"
+                value={
+                  bank.od_limit ||
+                  '-'
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="information-circle-outline"
+                label="OD Status"
+                value={
+                  bank.od_status ||
+                  '-'
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Start Date"
+                value={
+                  formatDate(
+                    bank.start_date
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="End Date"
+                value={
+                  formatDate(
+                    bank.end_date
                   )
                 }
               />
             </>
-          )}
+          ) : null}
+
+        </View>
 
 
-          {item.updated_at && (
+        {/* TERM LOAN */}
+
+        <SectionTitle
+          title="Term Loan"
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="document-text-outline"
+            label="Term Loan"
+            value={bank.term_loan}
+          />
+
+          {bank.term_loan ===
+          'Yes' ? (
             <>
+              <Divider />
+
+              <InfoRow
+                icon="cash-outline"
+                label="Loan Amount"
+                value={
+                  formatAmount(
+                    bank.term_loan_amount
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="information-circle-outline"
+                label="Loan Status"
+                value={
+                  bank.loan_status ||
+                  '-'
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Loan Start"
+                value={
+                  formatDate(
+                    bank.term_loan_start_date
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Loan End"
+                value={
+                  formatDate(
+                    bank.term_loan_end_date
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="cash-outline"
+                label="Repayment Amount"
+                value={
+                  formatAmount(
+                    bank.repayment_amount
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="wallet-outline"
+                label="Repayment Left"
+                value={
+                  bank.repayment_amount_left ||
+                  '-'
+                }
+              />
+
               <Divider />
 
               <InfoRow
                 icon="time-outline"
-                label="Last Updated"
+                label="Period"
                 value={
-                  formatDateTime(
-                    item.updated_at
+                  bank.period ||
+                  '-'
+                }
+              />
+            </>
+          ) : null}
+
+        </View>
+
+
+        {/* TERM LOAN RELIEF */}
+
+        <SectionTitle
+          title="Term Loan Relief"
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="umbrella-outline"
+            label="Relief Available"
+            value={
+              bank.term_loan_relief
+            }
+          />
+
+          {bank.term_loan_relief ===
+          'Yes' ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Relief Start"
+                value={
+                  formatDate(
+                    bank.term_loan_relief_start_date
+                  )
+                }
+              />
+
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Relief End"
+                value={
+                  formatDate(
+                    bank.term_loan_relief_end_date
                   )
                 }
               />
             </>
-          )}
+          ) : null}
+
+        </View>
+
+
+        {/* OTHER INFORMATION */}
+
+        <SectionTitle
+          title="Other Information"
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="calendar-outline"
+            label="Date Registered"
+            value={
+              formatDate(
+                bank.date_registered
+              )
+            }
+          />
+
+          {bank.ethiopian_date ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="calendar-number-outline"
+                label="Ethiopian Date"
+                value={
+                  bank.ethiopian_date
+                }
+              />
+            </>
+          ) : null}
+
+          {bank.cob_balance ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="wallet-outline"
+                label="COB Balance"
+                value={
+                  bank.cob_balance
+                }
+              />
+            </>
+          ) : null}
+
+          {bank.category ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="folder-outline"
+                label="Category"
+                value={
+                  bank.category
+                }
+              />
+            </>
+          ) : null}
+
+          {bank.start_month ? (
+            <>
+              <Divider />
+
+              <InfoRow
+                icon="calendar-outline"
+                label="Start Month"
+                value={
+                  bank.start_month
+                }
+              />
+            </>
+          ) : null}
 
         </View>
 
@@ -832,71 +988,50 @@ export default function ItemDetailsScreen() {
           title="Actions"
         />
 
-
         <Pressable
           disabled={
             changingStatus
           }
-
           onPress={
             confirmStatusChange
           }
-
-          style={
-            styles.actionCard
-          }
+          style={styles.actionCard}
         >
 
           <View
-            style={
-              styles.actionIcon
-            }
+            style={styles.actionIcon}
           >
-
             {changingStatus ? (
-
               <ActivityIndicator
                 size="small"
-                color={
-                  Colors.primary
-                }
+                color={Colors.primary}
               />
-
             ) : (
-
               <Ionicons
                 name={
-                  active
+                  isActive
                     ? 'pause-circle-outline'
                     : 'checkmark-circle-outline'
                 }
                 size={22}
-                color={
-                  Colors.primary
-                }
+                color={Colors.primary}
               />
-
             )}
-
           </View>
-
 
           <View
             style={
               styles.actionContent
             }
           >
-
             <Text
               style={
                 styles.actionTitle
               }
             >
-              {
-                active
-                  ? 'Deactivate Item'
-                  : 'Activate Item'
-              }
+              {isActive
+                ? 'Deactivate Bank'
+                : 'Activate Bank'}
             </Text>
 
             <Text
@@ -904,85 +1039,60 @@ export default function ItemDetailsScreen() {
                 styles.actionSubtitle
               }
             >
-              {
-                active
-                  ? 'Temporarily disable this item'
-                  : 'Make this item available again'
-              }
+              {isActive
+                ? 'Temporarily disable this bank'
+                : 'Make this bank active again'}
             </Text>
-
           </View>
-
 
           <Ionicons
             name="chevron-forward"
             size={19}
-            color={
-              Colors.textMuted
-            }
+            color={Colors.textMuted}
           />
 
         </Pressable>
 
 
         <Pressable
-          disabled={
-            deleting
-          }
-
-          onPress={
-            confirmDelete
-          }
-
+          disabled={deleting}
+          onPress={confirmDelete}
           style={[
             styles.actionCard,
             styles.deleteCard,
           ]}
         >
-
           <View
             style={[
               styles.actionIcon,
               styles.deleteIcon,
             ]}
           >
-
             {deleting ? (
-
               <ActivityIndicator
                 size="small"
-                color={
-                  Colors.danger
-                }
+                color={Colors.danger}
               />
-
             ) : (
-
               <Ionicons
                 name="trash-outline"
                 size={21}
-                color={
-                  Colors.danger
-                }
+                color={Colors.danger}
               />
-
             )}
-
           </View>
-
 
           <View
             style={
               styles.actionContent
             }
           >
-
             <Text
               style={
                 styles.deleteTitle
               }
             >
-              Delete Item
+              Delete Bank
             </Text>
 
             <Text
@@ -990,15 +1100,12 @@ export default function ItemDetailsScreen() {
                 styles.actionSubtitle
               }
             >
-              Move this item to the recycle bin
+              Move this bank to deleted records
             </Text>
-
           </View>
-
         </Pressable>
 
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -1006,7 +1113,7 @@ export default function ItemDetailsScreen() {
 
 /*
 |--------------------------------------------------------------------------
-| Section Title
+| Components
 |--------------------------------------------------------------------------
 */
 
@@ -1015,25 +1122,15 @@ function SectionTitle({
 }: {
   title: string;
 }) {
-
   return (
     <Text
-      style={
-        styles.sectionTitle
-      }
+      style={styles.sectionTitle}
     >
       {title}
     </Text>
   );
-
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Information Row
-|--------------------------------------------------------------------------
-*/
 
 function InfoRow({
   icon,
@@ -1044,71 +1141,42 @@ function InfoRow({
   label: string;
   value: string;
 }) {
-
   return (
-    <View
-      style={
-        styles.infoRow
-      }
-    >
-
+    <View style={styles.infoRow}>
       <View
-        style={
-          styles.infoIcon
-        }
+        style={styles.infoIcon}
       >
-
         <Ionicons
           name={icon}
           size={18}
-          color={
-            Colors.primary
-          }
+          color={Colors.primary}
         />
-
       </View>
 
-
       <View
-        style={
-          styles.infoContent
-        }
+        style={styles.infoContent}
       >
-
         <Text
-          style={
-            styles.infoLabel
-          }
+          style={styles.infoLabel}
         >
           {label}
         </Text>
 
         <Text
-          style={
-            styles.infoValue
-          }
+          style={styles.infoValue}
         >
           {value}
         </Text>
-
       </View>
-
     </View>
   );
-
 }
 
 
 function Divider() {
-
   return (
-    <View
-      style={
-        styles.divider
-      }
-    />
+    <View style={styles.divider} />
   );
-
 }
 
 
@@ -1118,14 +1186,50 @@ function Divider() {
 |--------------------------------------------------------------------------
 */
 
-function formatDate(
-  value?:
+function formatAmount(
+  value:
+    | number
     | string
     | null
+    | undefined
+): string {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ''
+  ) {
+    return '-';
+  }
+
+  const number =
+    Number(value);
+
+  if (
+    Number.isNaN(number)
+  ) {
+    return String(value);
+  }
+
+  return number.toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  );
+}
+
+
+function formatDate(
+  value:
+    | string
+    | null
+    | undefined
 ): string {
 
   if (!value) {
-    return '—';
+    return '-';
   }
 
   const date =
@@ -1136,7 +1240,7 @@ function formatDate(
       date.getTime()
     )
   ) {
-    return String(value);
+    return value;
   }
 
   return date.toLocaleDateString(
@@ -1147,76 +1251,6 @@ function formatDate(
       day: 'numeric',
     }
   );
-
-}
-
-
-function formatDateTime(
-  value?:
-    | string
-    | null
-): string {
-
-  if (!value) {
-    return '—';
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return String(value);
-  }
-
-  return date.toLocaleString(
-    undefined,
-    {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }
-  );
-
-}
-
-
-function getApiErrorMessage(
-  error: any,
-  fallback: string
-): string {
-
-  const errors =
-    error?.response
-      ?.data?.errors;
-
-  if (errors) {
-
-    const first =
-      Object.values(errors)
-        .flat()
-        .find(Boolean);
-
-    if (
-      typeof first ===
-      'string'
-    ) {
-      return first;
-    }
-
-  }
-
-  return (
-    error?.response
-      ?.data?.message ??
-    fallback
-  );
-
 }
 
 
@@ -1249,15 +1283,11 @@ const styles =
     backButton: {
       width: 44,
       height: 44,
-
       borderRadius: 14,
-
       alignItems: 'center',
       justifyContent: 'center',
-
       backgroundColor:
         Colors.surface,
-
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1270,22 +1300,16 @@ const styles =
 
     title: {
       fontSize: 22,
-
       fontFamily:
         Fonts.extraBold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
     subtitle: {
       marginTop: 2,
-
-      fontSize: 10,
-
+      fontSize: 12,
       fontFamily:
         Fonts.regular,
-
       color:
         Colors.textSecondary,
     },
@@ -1293,15 +1317,11 @@ const styles =
     editButton: {
       width: 44,
       height: 44,
-
       borderRadius: 14,
-
       alignItems: 'center',
       justifyContent: 'center',
-
       backgroundColor:
         Colors.primaryLight,
-
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1309,16 +1329,11 @@ const styles =
 
     heroCard: {
       marginTop: 24,
-
       padding: 24,
-
       alignItems: 'center',
-
       borderRadius: 22,
-
       backgroundColor:
         Colors.surface,
-
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1327,52 +1342,45 @@ const styles =
     heroIcon: {
       width: 72,
       height: 72,
-
       borderRadius: 23,
-
       alignItems: 'center',
       justifyContent: 'center',
-
       backgroundColor:
         Colors.primaryLight,
     },
 
-    itemDescription: {
+    bankName: {
       marginTop: 15,
-
       textAlign: 'center',
-
-      fontSize: 19,
-      lineHeight: 25,
-
+      fontSize: 20,
       fontFamily:
         Fonts.extraBold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
-    itemNumber: {
+    bankCode: {
       marginTop: 5,
-
-      fontSize: 11,
-
+      fontSize: 12,
       fontFamily:
         Fonts.medium,
-
       color:
         Colors.textSecondary,
     },
 
+    accountNo: {
+      marginTop: 3,
+      fontSize: 11,
+      fontFamily:
+        Fonts.regular,
+      color: Colors.textMuted,
+    },
+
     statusBadge: {
       marginTop: 13,
-
       paddingHorizontal: 12,
       paddingVertical: 7,
-
       flexDirection: 'row',
       alignItems: 'center',
-
       borderRadius: 20,
     },
 
@@ -1389,9 +1397,7 @@ const styles =
     statusDot: {
       width: 7,
       height: 7,
-
       marginRight: 6,
-
       borderRadius: 10,
     },
 
@@ -1406,8 +1412,7 @@ const styles =
     },
 
     statusText: {
-      fontSize: 10,
-
+      fontSize: 11,
       fontFamily:
         Fonts.bold,
     },
@@ -1425,24 +1430,17 @@ const styles =
     sectionTitle: {
       marginTop: 27,
       marginBottom: 12,
-
       fontSize: 17,
-
       fontFamily:
         Fonts.extraBold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
     infoCard: {
       paddingHorizontal: 16,
-
       borderRadius: 20,
-
       backgroundColor:
         Colors.surface,
-
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1450,9 +1448,7 @@ const styles =
 
     infoRow: {
       minHeight: 72,
-
       paddingVertical: 12,
-
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -1460,12 +1456,9 @@ const styles =
     infoIcon: {
       width: 38,
       height: 38,
-
       borderRadius: 12,
-
       alignItems: 'center',
       justifyContent: 'center',
-
       backgroundColor:
         Colors.primaryLight,
     },
@@ -1476,50 +1469,36 @@ const styles =
     },
 
     infoLabel: {
-      fontSize: 9,
-
+      fontSize: 10,
       fontFamily:
         Fonts.medium,
-
-      color:
-        Colors.textMuted,
+      color: Colors.textMuted,
     },
 
     infoValue: {
       marginTop: 3,
-
       fontSize: 13,
       lineHeight: 19,
-
       fontFamily:
         Fonts.semiBold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
     divider: {
       height: 1,
-
       backgroundColor:
         Colors.border,
     },
 
     actionCard: {
       minHeight: 74,
-
       marginBottom: 11,
-
       padding: 14,
-
       flexDirection: 'row',
       alignItems: 'center',
-
       borderRadius: 18,
-
       backgroundColor:
         Colors.surface,
-
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1528,12 +1507,9 @@ const styles =
     actionIcon: {
       width: 44,
       height: 44,
-
       borderRadius: 14,
-
       alignItems: 'center',
       justifyContent: 'center',
-
       backgroundColor:
         Colors.primaryLight,
     },
@@ -1545,23 +1521,17 @@ const styles =
 
     actionTitle: {
       fontSize: 13,
-
       fontFamily:
         Fonts.bold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
     actionSubtitle: {
       marginTop: 3,
-
       fontSize: 10,
       lineHeight: 15,
-
       fontFamily:
         Fonts.regular,
-
       color:
         Colors.textSecondary,
     },
@@ -1577,53 +1547,39 @@ const styles =
 
     deleteTitle: {
       fontSize: 13,
-
       fontFamily:
         Fonts.bold,
-
-      color:
-        Colors.danger,
+      color: Colors.danger,
     },
 
     loadingContainer: {
       flex: 1,
-
       alignItems: 'center',
       justifyContent: 'center',
     },
 
     loadingText: {
       marginTop: 12,
-
-      fontSize: 12,
-
+      fontSize: 13,
       fontFamily:
         Fonts.medium,
-
       color:
         Colors.textSecondary,
     },
 
     notFoundTitle: {
       marginTop: 13,
-
       fontSize: 17,
-
       fontFamily:
         Fonts.bold,
-
-      color:
-        Colors.text,
+      color: Colors.text,
     },
 
     goBackButton: {
       marginTop: 20,
-
       paddingHorizontal: 22,
       paddingVertical: 12,
-
       borderRadius: 14,
-
       backgroundColor:
         Colors.primary,
     },
@@ -1631,9 +1587,7 @@ const styles =
     goBackText: {
       fontFamily:
         Fonts.bold,
-
-      color:
-        Colors.white,
+      color: Colors.white,
     },
 
   });

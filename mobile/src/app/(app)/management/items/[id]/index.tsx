@@ -24,117 +24,135 @@ import {
 
 import {
   Colors,
-} from '../../../../constants/colors';
+} from '../../../../../constants/colors';
 
 import {
   Fonts,
-} from '../../../../constants/fonts';
+} from '../../../../../constants/fonts';
 
 import {
-  Bank,
-  banksApi,
-} from '../../../../api/banksApi';
+  Item,
+  itemsApi,
+} from '../../../../../api/itemsApi';
 
 
-export default function BankDetailsScreen() {
+export default function ItemDetailsScreen() {
+
   const params =
     useLocalSearchParams();
 
   const rawId =
-  Array.isArray(params.id)
-    ? params.id[0]
-    : params.id;
+    Array.isArray(params.id)
+      ? params.id[0]
+      : params.id;
 
-const bankId =
-  Number(rawId);
+  const itemId =
+    Number(rawId);
 
   const [
-    bank,
-    setBank,
-  ] = useState<Bank | null>(null);
+    item,
+    setItem,
+  ] =
+    useState<Item | null>(
+      null
+    );
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(true);
 
   const [
     changingStatus,
     setChangingStatus,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     deleting,
     setDeleting,
-  ] = useState(false);
+  ] =
+    useState(false);
 
 
   /*
   |--------------------------------------------------------------------------
-  | Load Bank
+  | Load Item
   |--------------------------------------------------------------------------
   */
 
-  const loadBank =
-  useCallback(async () => {
+  const loadItem =
+    useCallback(async () => {
 
-    if (
-      !rawId ||
-      Number.isNaN(bankId)
-    ) {
-      console.log(
-        'Invalid bank route id:',
-        params.id
-      );
+      if (
+        !rawId ||
+        Number.isNaN(itemId)
+      ) {
 
-      Alert.alert(
-        'Invalid bank',
-        'The bank ID is missing or invalid.'
-      );
-
-      setLoading(false);
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const data =
-        await banksApi.get(
-          bankId
+        console.log(
+          'Invalid item route id:',
+          params.id
         );
 
-      setBank(data);
+        setLoading(false);
 
-    } catch (error: any) {
+        return;
+      }
 
-      console.log(
-        'Bank details error:',
-        error?.response?.data ??
-        error
-      );
+      try {
 
-      Alert.alert(
-        'Unable to load bank',
-        error?.response?.data?.message ??
-        'Bank information could not be loaded.'
-      );
+        setLoading(true);
 
-    } finally {
-      setLoading(false);
-    }
+        const data =
+          await itemsApi.get(
+            itemId
+          );
 
-  }, [
-    bankId,
-    rawId,
-  ]);
+        setItem(data);
 
+      } catch (error: any) {
+
+        console.log(
+          'Item details error:',
+          error?.response?.data ??
+          error
+        );
+
+        Alert.alert(
+          'Unable to load item',
+          getApiErrorMessage(
+            error,
+            'Item information could not be loaded.'
+          )
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    }, [
+      itemId,
+      rawId,
+    ]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Reload After Edit
+  |--------------------------------------------------------------------------
+  */
 
   useFocusEffect(
     useCallback(() => {
-      loadBank();
-    }, [loadBank])
+
+      loadItem();
+
+    }, [
+      loadItem,
+    ])
   );
 
 
@@ -144,48 +162,54 @@ const bankId =
   |--------------------------------------------------------------------------
   */
 
-  const confirmStatusChange = () => {
-    if (
-      !bank ||
-      changingStatus
-    ) {
-      return;
-    }
+  const confirmStatusChange =
+    () => {
 
-    const newStatus =
-      bank.status === 'active'
-        ? 'inactive'
-        : 'active';
+      if (
+        !item ||
+        changingStatus
+      ) {
+        return;
+      }
 
-    Alert.alert(
-      newStatus === 'active'
-        ? 'Activate Bank'
-        : 'Deactivate Bank',
+      const newStatus =
+        item.status ===
+        'active'
+          ? 'inactive'
+          : 'active';
 
-      newStatus === 'active'
-        ? `Activate ${bank.bank_name}?`
-        : `Deactivate ${bank.bank_name}?`,
 
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+      Alert.alert(
+        newStatus === 'active'
+          ? 'Activate Item'
+          : 'Deactivate Item',
 
-        {
-          text:
-            newStatus === 'active'
-              ? 'Activate'
-              : 'Deactivate',
+        newStatus === 'active'
+          ? `Activate ${item.item_description}?`
+          : `Deactivate ${item.item_description}?`,
 
-          onPress: () =>
-            changeStatus(
-              newStatus
-            ),
-        },
-      ]
-    );
-  };
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+
+          {
+            text:
+              newStatus ===
+              'active'
+                ? 'Activate'
+                : 'Deactivate',
+
+            onPress: () =>
+              changeStatus(
+                newStatus
+              ),
+          },
+        ]
+      );
+
+    };
 
 
   const changeStatus =
@@ -194,45 +218,52 @@ const bankId =
         | 'active'
         | 'inactive'
     ) => {
-      if (!bank) {
+
+      if (!item) {
         return;
       }
 
       try {
+
         setChangingStatus(true);
 
         const updated =
-          await banksApi
-            .changeStatus(
-              bank.id,
-              status
-            );
+          await itemsApi.changeStatus(
+            item.id,
+            status
+          );
 
-        setBank(updated);
+        setItem(updated);
 
         Alert.alert(
           'Status updated',
           status === 'active'
-            ? 'The bank is now active.'
-            : 'The bank is now inactive.'
+            ? 'The item is now active.'
+            : 'The item is now inactive.'
         );
 
       } catch (error: any) {
+
         console.log(
-          'Bank status error:',
+          'Item status error:',
           error?.response?.data ??
           error
         );
 
         Alert.alert(
           'Unable to update status',
-          error?.response?.data?.message ??
-          'The bank status could not be changed.'
+          getApiErrorMessage(
+            error,
+            'The item status could not be changed.'
+          )
         );
 
       } finally {
+
         setChangingStatus(false);
+
       }
+
     };
 
 
@@ -242,51 +273,56 @@ const bankId =
   |--------------------------------------------------------------------------
   */
 
-  const confirmDelete = () => {
-    if (
-      !bank ||
-      deleting
-    ) {
-      return;
-    }
+  const confirmDelete =
+    () => {
 
-    Alert.alert(
-      'Delete Bank',
-      `Are you sure you want to delete ${bank.bank_name}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+      if (
+        !item ||
+        deleting
+      ) {
+        return;
+      }
 
-        {
-          text: 'Delete',
-          style: 'destructive',
+      Alert.alert(
+        'Delete Item',
+        `Are you sure you want to delete ${item.item_description}?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
 
-          onPress: () =>
-            deleteBank(),
-        },
-      ]
-    );
-  };
+          {
+            text: 'Delete',
+            style: 'destructive',
+
+            onPress: () =>
+              deleteItem(),
+          },
+        ]
+      );
+
+    };
 
 
-  const deleteBank =
+  const deleteItem =
     async () => {
-      if (!bank) {
+
+      if (!item) {
         return;
       }
 
       try {
+
         setDeleting(true);
 
-        await banksApi.remove(
-          bank.id
+        await itemsApi.remove(
+          item.id
         );
 
         Alert.alert(
-          'Bank deleted',
-          'The bank has been moved to deleted records.',
+          'Item deleted',
+          'The item has been moved to the recycle bin.',
           [
             {
               text: 'OK',
@@ -297,21 +333,27 @@ const bankId =
         );
 
       } catch (error: any) {
+
         console.log(
-          'Bank delete error:',
+          'Item delete error:',
           error?.response?.data ??
           error
         );
 
         Alert.alert(
           'Delete failed',
-          error?.response?.data?.message ??
-          'Unable to delete the bank.'
+          getApiErrorMessage(
+            error,
+            'Unable to delete the item.'
+          )
         );
 
       } finally {
+
         setDeleting(false);
+
       }
+
     };
 
 
@@ -322,28 +364,40 @@ const bankId =
   */
 
   if (loading) {
+
     return (
       <SafeAreaView
-        style={styles.safeArea}
+        style={
+          styles.safeArea
+        }
       >
+
         <View
           style={
             styles.loadingContainer
           }
         >
+
           <ActivityIndicator
             size="large"
-            color={Colors.primary}
+            color={
+              Colors.primary
+            }
           />
 
           <Text
-            style={styles.loadingText}
+            style={
+              styles.loadingText
+            }
           >
-            Loading bank...
+            Loading item...
           </Text>
+
         </View>
+
       </SafeAreaView>
     );
+
   }
 
 
@@ -353,20 +407,27 @@ const bankId =
   |--------------------------------------------------------------------------
   */
 
-  if (!bank) {
+  if (!item) {
+
     return (
       <SafeAreaView
-        style={styles.safeArea}
+        style={
+          styles.safeArea
+        }
       >
+
         <View
           style={
             styles.loadingContainer
           }
         >
+
           <Ionicons
-            name="business-outline"
+            name="cube-outline"
             size={42}
-            color={Colors.textMuted}
+            color={
+              Colors.textMuted
+            }
           />
 
           <Text
@@ -374,17 +435,20 @@ const bankId =
               styles.notFoundTitle
             }
           >
-            Bank not found
+            Item not found
           </Text>
+
 
           <Pressable
             style={
               styles.goBackButton
             }
+
             onPress={() =>
               router.back()
             }
           >
+
             <Text
               style={
                 styles.goBackText
@@ -392,25 +456,40 @@ const bankId =
             >
               Go Back
             </Text>
+
           </Pressable>
+
         </View>
+
       </SafeAreaView>
     );
+
   }
 
 
-  const isActive =
-    bank.status === 'active';
+  const active =
+    item.status ===
+    'active';
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | UI
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <SafeAreaView
-      style={styles.safeArea}
+      style={
+        styles.safeArea
+      }
     >
+
       <ScrollView
         contentContainerStyle={
           styles.container
         }
+
         showsVerticalScrollIndicator={
           false
         }
@@ -418,50 +497,78 @@ const bankId =
 
         {/* HEADER */}
 
-        <View style={styles.header}>
+        <View
+          style={
+            styles.header
+          }
+        >
 
           <Pressable
-            style={styles.backButton}
+            style={
+              styles.backButton
+            }
+
             onPress={() =>
               router.back()
             }
           >
+
             <Ionicons
               name="arrow-back"
               size={22}
-              color={Colors.text}
+              color={
+                Colors.text
+              }
             />
+
           </Pressable>
+
 
           <View
             style={
               styles.headerContent
             }
           >
-            <Text style={styles.title}>
-              Bank Details
+
+            <Text
+              style={
+                styles.title
+              }
+            >
+              Item Details
             </Text>
 
             <Text
-              style={styles.subtitle}
+              style={
+                styles.subtitle
+              }
             >
-              Banking & credit setup
+              Product & inventory information
             </Text>
+
           </View>
 
+
           <Pressable
-            style={styles.editButton}
+            style={
+              styles.editButton
+            }
+
             onPress={() =>
               router.push(
-                `/(app)/administration/banks/${bank.id}/edit` as any
+                `/(app)/management/items/${item.id}/edit` as any
               )
             }
           >
+
             <Ionicons
               name="create-outline"
               size={21}
-              color={Colors.primary}
+              color={
+                Colors.primary
+              }
             />
+
           </Pressable>
 
         </View>
@@ -470,50 +577,63 @@ const bankId =
         {/* HERO */}
 
         <View
-          style={styles.heroCard}
+          style={
+            styles.heroCard
+          }
         >
+
           <View
-            style={styles.heroIcon}
+            style={
+              styles.heroIcon
+            }
           >
+
             <Ionicons
-              name="business-outline"
-              size={34}
-              color={Colors.primary}
+              name="cube-outline"
+              size={35}
+              color={
+                Colors.primary
+              }
             />
+
           </View>
 
-          <Text
-            style={styles.bankName}
-          >
-            {bank.bank_name}
-          </Text>
 
           <Text
-            style={styles.bankCode}
+            style={
+              styles.itemDescription
+            }
           >
-            {bank.bank_id}
+            {
+              item.item_description
+            }
           </Text>
 
+
           <Text
-            style={styles.accountNo}
+            style={
+              styles.itemNumber
+            }
           >
-            {bank.account_no}
+            {item.item_no}
           </Text>
+
 
           <View
             style={[
               styles.statusBadge,
 
-              isActive
+              active
                 ? styles.activeBadge
                 : styles.inactiveBadge,
             ]}
           >
+
             <View
               style={[
                 styles.statusDot,
 
-                isActive
+                active
                   ? styles.activeDot
                   : styles.inactiveDot,
               ]}
@@ -523,138 +643,111 @@ const bankId =
               style={[
                 styles.statusText,
 
-                isActive
+                active
                   ? styles.activeText
                   : styles.inactiveText,
               ]}
             >
-              {isActive
-                ? 'Active'
-                : 'Inactive'}
+              {
+                active
+                  ? 'Active'
+                  : 'Inactive'
+              }
             </Text>
+
           </View>
+
         </View>
 
 
-        {/* BASIC INFORMATION */}
+        {/* ITEM INFORMATION */}
 
         <SectionTitle
-          title="Basic Information"
+          title="Item Information"
         />
 
-        <View style={styles.infoCard}>
+        <View
+          style={
+            styles.infoCard
+          }
+        >
 
           <InfoRow
             icon="barcode-outline"
-            label="Bank ID"
-            value={bank.bank_id}
-          />
-
-          <Divider />
-
-          <InfoRow
-            icon="business-outline"
-            label="Bank Name"
-            value={bank.bank_name}
-          />
-
-          {bank.bank_name_orginal ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="text-outline"
-                label="Original Name"
-                value={
-                  bank.bank_name_orginal
-                }
-              />
-            </>
-          ) : null}
-
-          <Divider />
-
-          <InfoRow
-            icon="card-outline"
-            label="Account Number"
-            value={bank.account_no}
-          />
-
-          <Divider />
-
-          <InfoRow
-            icon="location-outline"
-            label="Branch"
-            value={bank.branch}
-          />
-
-          {bank.contact_address ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="call-outline"
-                label="Contact Address"
-                value={
-                  bank.contact_address
-                }
-              />
-            </>
-          ) : null}
-
-        </View>
-
-
-        {/* FINANCIAL SETUP */}
-
-        <SectionTitle
-          title="Financial Setup"
-        />
-
-        <View style={styles.infoCard}>
-
-          <InfoRow
-            icon="wallet-outline"
-            label="Beginning Amount"
+            label="Item Number"
             value={
-              formatAmount(
-                bank.begnning_amount
-              )
+              item.item_no
             }
           />
 
           <Divider />
 
+
           <InfoRow
-            icon="cash-outline"
-            label="Beginning Amount Left"
+            icon="cube-outline"
+            label="Description"
             value={
-              formatAmount(
-                bank.begnning__amount_left
-              )
+              item.item_description
             }
           />
 
           <Divider />
 
+
           <InfoRow
-            icon="remove-circle-outline"
-            label="Minimum Amount"
+            icon="folder-outline"
+            label="Category"
             value={
-              formatAmount(
-                bank.min_amount
-              )
+              item.category ||
+              'Not assigned'
             }
           />
 
           <Divider />
 
+
           <InfoRow
-            icon="swap-horizontal-outline"
-            label="Transfer Rate"
+            icon="layers-outline"
+            label="Unit"
             value={
-              formatAmount(
-                bank.transfer_rate
+              item.unit ||
+              'Not assigned'
+            }
+          />
+
+          <Divider />
+
+
+          <InfoRow
+            icon="pricetag-outline"
+            label="Type"
+            value={
+              item.type ||
+              'Not assigned'
+            }
+          />
+
+          <Divider />
+
+
+          <InfoRow
+            icon="archive-outline"
+            label="Inventory"
+            value={
+              item.inventory ||
+              'Not assigned'
+            }
+          />
+
+          <Divider />
+
+
+          <InfoRow
+            icon="calendar-outline"
+            label="Product Date"
+            value={
+              formatDate(
+                item.product_date
               )
             }
           />
@@ -662,322 +755,73 @@ const bankId =
         </View>
 
 
-        {/* OVERDRAFT */}
+        {/* REGISTRATION */}
 
         <SectionTitle
-          title="Overdraft Facility"
+          title="Registration"
         />
 
-        <View style={styles.infoCard}>
+        <View
+          style={
+            styles.infoCard
+          }
+        >
 
           <InfoRow
-            icon="card-outline"
-            label="OD Available"
-            value={bank.od_available}
+            icon="person-outline"
+            label="Registered By"
+            value={
+              item.registered_by ||
+              'System'
+            }
           />
 
-          {bank.od_available ===
-          'Yes' ? (
+          <Divider />
+
+
+          <InfoRow
+            icon="calendar-number-outline"
+            label="Date Registered"
+            value={
+              formatDate(
+                item.date_registered
+              )
+            }
+          />
+
+
+          {item.created_at && (
             <>
               <Divider />
 
               <InfoRow
-                icon="cash-outline"
-                label="OD Amount"
+                icon="add-circle-outline"
+                label="Created"
                 value={
-                  formatAmount(
-                    bank.od_amount
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="wallet-outline"
-                label="OD Amount Left"
-                value={
-                  formatAmount(
-                    bank.od_amount_left
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="speedometer-outline"
-                label="OD Limit"
-                value={
-                  bank.od_limit ||
-                  '-'
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="information-circle-outline"
-                label="OD Status"
-                value={
-                  bank.od_status ||
-                  '-'
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Start Date"
-                value={
-                  formatDate(
-                    bank.start_date
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="End Date"
-                value={
-                  formatDate(
-                    bank.end_date
+                  formatDateTime(
+                    item.created_at
                   )
                 }
               />
             </>
-          ) : null}
-
-        </View>
+          )}
 
 
-        {/* TERM LOAN */}
-
-        <SectionTitle
-          title="Term Loan"
-        />
-
-        <View style={styles.infoCard}>
-
-          <InfoRow
-            icon="document-text-outline"
-            label="Term Loan"
-            value={bank.term_loan}
-          />
-
-          {bank.term_loan ===
-          'Yes' ? (
+          {item.updated_at && (
             <>
-              <Divider />
-
-              <InfoRow
-                icon="cash-outline"
-                label="Loan Amount"
-                value={
-                  formatAmount(
-                    bank.term_loan_amount
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="information-circle-outline"
-                label="Loan Status"
-                value={
-                  bank.loan_status ||
-                  '-'
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Loan Start"
-                value={
-                  formatDate(
-                    bank.term_loan_start_date
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Loan End"
-                value={
-                  formatDate(
-                    bank.term_loan_end_date
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="cash-outline"
-                label="Repayment Amount"
-                value={
-                  formatAmount(
-                    bank.repayment_amount
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="wallet-outline"
-                label="Repayment Left"
-                value={
-                  bank.repayment_amount_left ||
-                  '-'
-                }
-              />
-
               <Divider />
 
               <InfoRow
                 icon="time-outline"
-                label="Period"
+                label="Last Updated"
                 value={
-                  bank.period ||
-                  '-'
-                }
-              />
-            </>
-          ) : null}
-
-        </View>
-
-
-        {/* TERM LOAN RELIEF */}
-
-        <SectionTitle
-          title="Term Loan Relief"
-        />
-
-        <View style={styles.infoCard}>
-
-          <InfoRow
-            icon="umbrella-outline"
-            label="Relief Available"
-            value={
-              bank.term_loan_relief
-            }
-          />
-
-          {bank.term_loan_relief ===
-          'Yes' ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Relief Start"
-                value={
-                  formatDate(
-                    bank.term_loan_relief_start_date
-                  )
-                }
-              />
-
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Relief End"
-                value={
-                  formatDate(
-                    bank.term_loan_relief_end_date
+                  formatDateTime(
+                    item.updated_at
                   )
                 }
               />
             </>
-          ) : null}
-
-        </View>
-
-
-        {/* OTHER INFORMATION */}
-
-        <SectionTitle
-          title="Other Information"
-        />
-
-        <View style={styles.infoCard}>
-
-          <InfoRow
-            icon="calendar-outline"
-            label="Date Registered"
-            value={
-              formatDate(
-                bank.date_registered
-              )
-            }
-          />
-
-          {bank.ethiopian_date ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="calendar-number-outline"
-                label="Ethiopian Date"
-                value={
-                  bank.ethiopian_date
-                }
-              />
-            </>
-          ) : null}
-
-          {bank.cob_balance ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="wallet-outline"
-                label="COB Balance"
-                value={
-                  bank.cob_balance
-                }
-              />
-            </>
-          ) : null}
-
-          {bank.category ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="folder-outline"
-                label="Category"
-                value={
-                  bank.category
-                }
-              />
-            </>
-          ) : null}
-
-          {bank.start_month ? (
-            <>
-              <Divider />
-
-              <InfoRow
-                icon="calendar-outline"
-                label="Start Month"
-                value={
-                  bank.start_month
-                }
-              />
-            </>
-          ) : null}
+          )}
 
         </View>
 
@@ -988,50 +832,71 @@ const bankId =
           title="Actions"
         />
 
+
         <Pressable
           disabled={
             changingStatus
           }
+
           onPress={
             confirmStatusChange
           }
-          style={styles.actionCard}
+
+          style={
+            styles.actionCard
+          }
         >
 
           <View
-            style={styles.actionIcon}
+            style={
+              styles.actionIcon
+            }
           >
+
             {changingStatus ? (
+
               <ActivityIndicator
                 size="small"
-                color={Colors.primary}
+                color={
+                  Colors.primary
+                }
               />
+
             ) : (
+
               <Ionicons
                 name={
-                  isActive
+                  active
                     ? 'pause-circle-outline'
                     : 'checkmark-circle-outline'
                 }
                 size={22}
-                color={Colors.primary}
+                color={
+                  Colors.primary
+                }
               />
+
             )}
+
           </View>
+
 
           <View
             style={
               styles.actionContent
             }
           >
+
             <Text
               style={
                 styles.actionTitle
               }
             >
-              {isActive
-                ? 'Deactivate Bank'
-                : 'Activate Bank'}
+              {
+                active
+                  ? 'Deactivate Item'
+                  : 'Activate Item'
+              }
             </Text>
 
             <Text
@@ -1039,60 +904,85 @@ const bankId =
                 styles.actionSubtitle
               }
             >
-              {isActive
-                ? 'Temporarily disable this bank'
-                : 'Make this bank active again'}
+              {
+                active
+                  ? 'Temporarily disable this item'
+                  : 'Make this item available again'
+              }
             </Text>
+
           </View>
+
 
           <Ionicons
             name="chevron-forward"
             size={19}
-            color={Colors.textMuted}
+            color={
+              Colors.textMuted
+            }
           />
 
         </Pressable>
 
 
         <Pressable
-          disabled={deleting}
-          onPress={confirmDelete}
+          disabled={
+            deleting
+          }
+
+          onPress={
+            confirmDelete
+          }
+
           style={[
             styles.actionCard,
             styles.deleteCard,
           ]}
         >
+
           <View
             style={[
               styles.actionIcon,
               styles.deleteIcon,
             ]}
           >
+
             {deleting ? (
+
               <ActivityIndicator
                 size="small"
-                color={Colors.danger}
+                color={
+                  Colors.danger
+                }
               />
+
             ) : (
+
               <Ionicons
                 name="trash-outline"
                 size={21}
-                color={Colors.danger}
+                color={
+                  Colors.danger
+                }
               />
+
             )}
+
           </View>
+
 
           <View
             style={
               styles.actionContent
             }
           >
+
             <Text
               style={
                 styles.deleteTitle
               }
             >
-              Delete Bank
+              Delete Item
             </Text>
 
             <Text
@@ -1100,12 +990,15 @@ const bankId =
                 styles.actionSubtitle
               }
             >
-              Move this bank to deleted records
+              Move this item to the recycle bin
             </Text>
+
           </View>
+
         </Pressable>
 
       </ScrollView>
+
     </SafeAreaView>
   );
 }
@@ -1113,7 +1006,7 @@ const bankId =
 
 /*
 |--------------------------------------------------------------------------
-| Components
+| Section Title
 |--------------------------------------------------------------------------
 */
 
@@ -1122,15 +1015,25 @@ function SectionTitle({
 }: {
   title: string;
 }) {
+
   return (
     <Text
-      style={styles.sectionTitle}
+      style={
+        styles.sectionTitle
+      }
     >
       {title}
     </Text>
   );
+
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Information Row
+|--------------------------------------------------------------------------
+*/
 
 function InfoRow({
   icon,
@@ -1141,42 +1044,71 @@ function InfoRow({
   label: string;
   value: string;
 }) {
+
   return (
-    <View style={styles.infoRow}>
+    <View
+      style={
+        styles.infoRow
+      }
+    >
+
       <View
-        style={styles.infoIcon}
+        style={
+          styles.infoIcon
+        }
       >
+
         <Ionicons
           name={icon}
           size={18}
-          color={Colors.primary}
+          color={
+            Colors.primary
+          }
         />
+
       </View>
 
+
       <View
-        style={styles.infoContent}
+        style={
+          styles.infoContent
+        }
       >
+
         <Text
-          style={styles.infoLabel}
+          style={
+            styles.infoLabel
+          }
         >
           {label}
         </Text>
 
         <Text
-          style={styles.infoValue}
+          style={
+            styles.infoValue
+          }
         >
           {value}
         </Text>
+
       </View>
+
     </View>
   );
+
 }
 
 
 function Divider() {
+
   return (
-    <View style={styles.divider} />
+    <View
+      style={
+        styles.divider
+      }
+    />
   );
+
 }
 
 
@@ -1186,50 +1118,14 @@ function Divider() {
 |--------------------------------------------------------------------------
 */
 
-function formatAmount(
-  value:
-    | number
-    | string
-    | null
-    | undefined
-): string {
-
-  if (
-    value === null ||
-    value === undefined ||
-    value === ''
-  ) {
-    return '-';
-  }
-
-  const number =
-    Number(value);
-
-  if (
-    Number.isNaN(number)
-  ) {
-    return String(value);
-  }
-
-  return number.toLocaleString(
-    undefined,
-    {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }
-  );
-}
-
-
 function formatDate(
-  value:
+  value?:
     | string
     | null
-    | undefined
 ): string {
 
   if (!value) {
-    return '-';
+    return '—';
   }
 
   const date =
@@ -1240,7 +1136,7 @@ function formatDate(
       date.getTime()
     )
   ) {
-    return value;
+    return String(value);
   }
 
   return date.toLocaleDateString(
@@ -1251,6 +1147,76 @@ function formatDate(
       day: 'numeric',
     }
   );
+
+}
+
+
+function formatDateTime(
+  value?:
+    | string
+    | null
+): string {
+
+  if (!value) {
+    return '—';
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return String(value);
+  }
+
+  return date.toLocaleString(
+    undefined,
+    {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }
+  );
+
+}
+
+
+function getApiErrorMessage(
+  error: any,
+  fallback: string
+): string {
+
+  const errors =
+    error?.response
+      ?.data?.errors;
+
+  if (errors) {
+
+    const first =
+      Object.values(errors)
+        .flat()
+        .find(Boolean);
+
+    if (
+      typeof first ===
+      'string'
+    ) {
+      return first;
+    }
+
+  }
+
+  return (
+    error?.response
+      ?.data?.message ??
+    fallback
+  );
+
 }
 
 
@@ -1283,11 +1249,15 @@ const styles =
     backButton: {
       width: 44,
       height: 44,
+
       borderRadius: 14,
+
       alignItems: 'center',
       justifyContent: 'center',
+
       backgroundColor:
         Colors.surface,
+
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1300,16 +1270,22 @@ const styles =
 
     title: {
       fontSize: 22,
+
       fontFamily:
         Fonts.extraBold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
     subtitle: {
       marginTop: 2,
-      fontSize: 12,
+
+      fontSize: 10,
+
       fontFamily:
         Fonts.regular,
+
       color:
         Colors.textSecondary,
     },
@@ -1317,11 +1293,15 @@ const styles =
     editButton: {
       width: 44,
       height: 44,
+
       borderRadius: 14,
+
       alignItems: 'center',
       justifyContent: 'center',
+
       backgroundColor:
         Colors.primaryLight,
+
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1329,11 +1309,16 @@ const styles =
 
     heroCard: {
       marginTop: 24,
+
       padding: 24,
+
       alignItems: 'center',
+
       borderRadius: 22,
+
       backgroundColor:
         Colors.surface,
+
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1342,45 +1327,52 @@ const styles =
     heroIcon: {
       width: 72,
       height: 72,
+
       borderRadius: 23,
+
       alignItems: 'center',
       justifyContent: 'center',
+
       backgroundColor:
         Colors.primaryLight,
     },
 
-    bankName: {
+    itemDescription: {
       marginTop: 15,
+
       textAlign: 'center',
-      fontSize: 20,
+
+      fontSize: 19,
+      lineHeight: 25,
+
       fontFamily:
         Fonts.extraBold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
-    bankCode: {
+    itemNumber: {
       marginTop: 5,
-      fontSize: 12,
+
+      fontSize: 11,
+
       fontFamily:
         Fonts.medium,
+
       color:
         Colors.textSecondary,
     },
 
-    accountNo: {
-      marginTop: 3,
-      fontSize: 11,
-      fontFamily:
-        Fonts.regular,
-      color: Colors.textMuted,
-    },
-
     statusBadge: {
       marginTop: 13,
+
       paddingHorizontal: 12,
       paddingVertical: 7,
+
       flexDirection: 'row',
       alignItems: 'center',
+
       borderRadius: 20,
     },
 
@@ -1397,7 +1389,9 @@ const styles =
     statusDot: {
       width: 7,
       height: 7,
+
       marginRight: 6,
+
       borderRadius: 10,
     },
 
@@ -1412,7 +1406,8 @@ const styles =
     },
 
     statusText: {
-      fontSize: 11,
+      fontSize: 10,
+
       fontFamily:
         Fonts.bold,
     },
@@ -1430,17 +1425,24 @@ const styles =
     sectionTitle: {
       marginTop: 27,
       marginBottom: 12,
+
       fontSize: 17,
+
       fontFamily:
         Fonts.extraBold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
     infoCard: {
       paddingHorizontal: 16,
+
       borderRadius: 20,
+
       backgroundColor:
         Colors.surface,
+
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1448,7 +1450,9 @@ const styles =
 
     infoRow: {
       minHeight: 72,
+
       paddingVertical: 12,
+
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -1456,9 +1460,12 @@ const styles =
     infoIcon: {
       width: 38,
       height: 38,
+
       borderRadius: 12,
+
       alignItems: 'center',
       justifyContent: 'center',
+
       backgroundColor:
         Colors.primaryLight,
     },
@@ -1469,36 +1476,50 @@ const styles =
     },
 
     infoLabel: {
-      fontSize: 10,
+      fontSize: 9,
+
       fontFamily:
         Fonts.medium,
-      color: Colors.textMuted,
+
+      color:
+        Colors.textMuted,
     },
 
     infoValue: {
       marginTop: 3,
+
       fontSize: 13,
       lineHeight: 19,
+
       fontFamily:
         Fonts.semiBold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
     divider: {
       height: 1,
+
       backgroundColor:
         Colors.border,
     },
 
     actionCard: {
       minHeight: 74,
+
       marginBottom: 11,
+
       padding: 14,
+
       flexDirection: 'row',
       alignItems: 'center',
+
       borderRadius: 18,
+
       backgroundColor:
         Colors.surface,
+
       borderWidth: 1,
       borderColor:
         Colors.border,
@@ -1507,9 +1528,12 @@ const styles =
     actionIcon: {
       width: 44,
       height: 44,
+
       borderRadius: 14,
+
       alignItems: 'center',
       justifyContent: 'center',
+
       backgroundColor:
         Colors.primaryLight,
     },
@@ -1521,17 +1545,23 @@ const styles =
 
     actionTitle: {
       fontSize: 13,
+
       fontFamily:
         Fonts.bold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
     actionSubtitle: {
       marginTop: 3,
+
       fontSize: 10,
       lineHeight: 15,
+
       fontFamily:
         Fonts.regular,
+
       color:
         Colors.textSecondary,
     },
@@ -1547,39 +1577,53 @@ const styles =
 
     deleteTitle: {
       fontSize: 13,
+
       fontFamily:
         Fonts.bold,
-      color: Colors.danger,
+
+      color:
+        Colors.danger,
     },
 
     loadingContainer: {
       flex: 1,
+
       alignItems: 'center',
       justifyContent: 'center',
     },
 
     loadingText: {
       marginTop: 12,
-      fontSize: 13,
+
+      fontSize: 12,
+
       fontFamily:
         Fonts.medium,
+
       color:
         Colors.textSecondary,
     },
 
     notFoundTitle: {
       marginTop: 13,
+
       fontSize: 17,
+
       fontFamily:
         Fonts.bold,
-      color: Colors.text,
+
+      color:
+        Colors.text,
     },
 
     goBackButton: {
       marginTop: 20,
+
       paddingHorizontal: 22,
       paddingVertical: 12,
+
       borderRadius: 14,
+
       backgroundColor:
         Colors.primary,
     },
@@ -1587,7 +1631,9 @@ const styles =
     goBackText: {
       fontFamily:
         Fonts.bold,
-      color: Colors.white,
+
+      color:
+        Colors.white,
     },
 
   });

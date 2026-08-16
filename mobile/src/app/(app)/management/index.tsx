@@ -81,6 +81,46 @@ const managementModules:
   route: '/(app)/management/projects',
 },
 
+{
+  key: 'suppliers',
+  title: 'Suppliers',
+  subtitle: 'Supplier & vendor master data',
+  icon: 'people-outline',
+  route: '/(app)/management/suppliers',
+},
+
+{
+  key: 'customers',
+  title: 'Customers',
+  subtitle: 'Customer master data',
+  icon: 'person-outline',
+  route: '/(app)/management/customers',
+},
+
+{
+  key: 'fixed-assets',
+  title: 'Fixed Assets',
+  subtitle: 'Vehicles, machinery & asset records',
+  icon: 'car-outline',
+  route: '/(app)/management/fixed-assets',
+},
+
+{
+  key: 'purchasers',
+  title: 'Purchasers',
+  subtitle: 'Purchasers and bank accounts',
+  icon: 'people-outline',
+  route: '/(app)/management/purchasers',
+},
+
+{
+  key: 'subcontractors',
+  title: 'Subcontractors',
+  subtitle: 'Companies & individual subcontractors',
+  icon: 'construct-outline',
+  route: '/(app)/management/subcontractors',
+},
+
 ];
 
 

@@ -32,6 +32,8 @@ import PurchaserDetailsPage from './pages/administration/purchasers/details';
 import ChequesPage from './pages/cheques';
 import SubcontractorsPage from './pages/administration/subcontractors';
 import PermissionsPage from './pages/administration/PermissionsPage';
+import CompanySettingsPage from './pages/settings/company-profile';
+import FiscalYearsPage from './pages/settings/fiscal-years';
 
 export default function App() {
     return (
@@ -151,6 +153,16 @@ export default function App() {
                                     path="/administration/subcontractors"
                                     element={<SubcontractorsPage />}
                                     />
+
+                                    <Route
+                                    path="/settings/company-profile"
+                                    element={<CompanySettingsPage />}
+                                    />
+
+                                    <Route
+                                    path="/settings/fiscal-years"
+                                    element={<FiscalYearsPage />}
+                                />
 
                         
                 </Route>

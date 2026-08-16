@@ -65,6 +65,7 @@ type MenuItem = Required<
 const rootSubmenuKeys = [
     'administration',
     'organization',
+    'settings',
 ];
 
 function getParentMenuKey(
@@ -84,6 +85,14 @@ function getParentMenuKey(
         )
     ) {
         return 'organization';
+    }
+
+    if (
+    pathname.startsWith(
+        '/settings'
+    )
+    ) {
+        return 'settings';
     }
 
     return null;
@@ -270,6 +279,32 @@ export default function MainLayout() {
                         
                     ],
                 },
+
+                {
+    key: 'settings',
+    icon: (
+        <SettingOutlined />
+    ),
+    label: 'Settings',
+
+    children: [
+    {
+        key: '/settings/company-profile',
+        icon: (
+            <BankOutlined />
+        ),
+        label: 'Company Profile',
+    },
+
+    {
+        key: '/settings/fiscal-years',
+        icon: (
+            <SettingOutlined />
+        ),
+        label: 'Fiscal Years',
+    },
+],
+},
             ],
             []
         );

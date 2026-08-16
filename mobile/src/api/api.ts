@@ -10,7 +10,7 @@ if (!API_URL) {
 }
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.2:8000/api',
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 20000,
   headers: {
     Accept: 'application/json',

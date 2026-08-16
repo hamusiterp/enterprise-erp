@@ -388,6 +388,81 @@ public function destroy(
     ]);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Deleted Purchasers
+|--------------------------------------------------------------------------
+*/
+
+public function deleted(Request $request): AnonymousResourceCollection
+{
+    $query = SalesPurchaser::onlyTrashed()
+        ->with([
+            'primaryAccount.bank',
+        ])
+        ->withCount([
+            'accounts',
+            'activeAccounts',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('search')) {
+
+        $search = trim($request->search);
+
+        $query->where(function ($q) use ($search) {
+
+            $q->where(
+                'purchaser_no',
+                'ILIKE',
+                "%{$search}%"
+            )
+            ->orWhere(
+                'purchaser_name',
+                'ILIKE',
+                "%{$search}%"
+            );
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    $perPage = (int) $request->input(
+        'per_page',
+        10
+    );
+
+    $perPage = max(
+        5,
+        min(
+            $perPage,
+            100
+        )
+    );
+
+
+    return SalesPurchaserResource::collection(
+
+        $query
+            ->orderByDesc('deleted_at')
+            ->paginate($perPage)
+
+    );
+}
+
     /*
     |--------------------------------------------------------------------------
     | Restore

@@ -1,0 +1,19 @@
+# Ignore ERP web/backend for mobile EAS build
+backend/
+frontend/
+
+# Git
+.git/
+
+# Mobile generated/local files
+mobile/node_modules/
+mobile/.expo/
+mobile/.env
+mobile/.env.local
+mobile/dist/
+mobile/web-build/
+mobile/coverage/
+
+# Native generated folders if present
+mobile/android/
+mobile/ios/

@@ -33,6 +33,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'permissions.view',
             'audit-logs.view',
             'system-settings.manage',
+            'company-settings.view',
+            'company-settings.manage',
+            'fiscal-years.view',
+            'fiscal-years.manage',
+            'fiscal-years.close',
+            'fiscal-years.lock',
         ];
 
         foreach ($permissions as $permission) {

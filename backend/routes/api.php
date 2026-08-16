@@ -20,6 +20,9 @@ use App\Http\Controllers\Api\Admin\SalesSubcontractorController;
 use App\Http\Controllers\Api\PermissionController;
 
 use App\Http\Controllers\Api\MobileAuthController;
+use App\Http\Controllers\Api\Admin\CompanySettingController;
+
+use App\Http\Controllers\Api\Admin\FiscalYearController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +32,15 @@ use App\Http\Controllers\Api\MobileAuthController;
 
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:5,1');
+
+Route::prefix('mobile')->group(function (): void {
+    Route::post('/login', [MobileAuthController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/user', [MobileAuthController::class, 'user']);
+        Route::post('/logout', [MobileAuthController::class, 'logout']);
+    });
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +59,62 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::prefix('settings/company-profile')->group(function () {
+
+    Route::get(
+        '/',
+        [CompanySettingController::class, 'show']
+    );
+
+    Route::put(
+        '/',
+        [CompanySettingController::class, 'update']
+    );
+
+    Route::post(
+        '/branding',
+        [CompanySettingController::class, 'uploadBranding']
+    );
+});
+
+Route::prefix('settings/fiscal-years')->group(function () {
+
+    Route::get(
+        '/',
+        [FiscalYearController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [FiscalYearController::class, 'store']
+    );
+
+    Route::get(
+        '/{fiscalYear}',
+        [FiscalYearController::class, 'show']
+    );
+
+    Route::put(
+        '/{fiscalYear}',
+        [FiscalYearController::class, 'update']
+    );
+
+    Route::post(
+        '/{fiscalYear}/set-current',
+        [FiscalYearController::class, 'setCurrent']
+    );
+
+    Route::post(
+        '/{fiscalYear}/close',
+        [FiscalYearController::class, 'close']
+    );
+
+    Route::post(
+        '/{fiscalYear}/lock',
+        [FiscalYearController::class, 'lock']
+    );
+});
 
     /*
     |--------------------------------------------------------------------------
@@ -552,6 +620,11 @@ Route::get(
 );
 
 Route::get(
+    '/sales/purchasers/deleted',
+    [SalesPurchaserController::class, 'deleted']
+);
+
+Route::get(
     '/sales/purchasers/statistics',
     [SalesPurchaserController::class, 'statistics']
 );
@@ -700,9 +773,11 @@ Route::post(
 )->whereNumber('id');
 
 Route::apiResource(
-    '/sales/subcontractors',
+    'sales/subcontractors',
     SalesSubcontractorController::class
-);
+)->parameters([
+    'subcontractors' => 'salesSubcontractor',
+]);
 
     }); // end admin
 

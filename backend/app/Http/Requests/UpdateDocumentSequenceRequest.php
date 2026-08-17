@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\DocumentSequence;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateDocumentSequenceRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()?->can('document-sequences.manage') ?? false;
+    }
+
+    public function rules(): array
+    {
+        $sequence = $this->route('documentSequence');
+
+        $sequenceId = $sequence instanceof DocumentSequence
+            ? $sequence->id
+            : $sequence;
+
+        return [
+            'document_type' => [
+                'required',
+                'string',
+                'max:100',
+
+                Rule::unique(
+                    'document_sequences',
+                    'document_type'
+                )
+                    ->where(
+                        fn ($query) =>
+                            $query->where(
+                                'fiscal_year_id',
+                                $this->input('fiscal_year_id')
+                            )
+                    )
+                    ->ignore($sequenceId),
+            ],
+
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+            ],
+
+            'prefix' => [
+                'required',
+                'string',
+                'max:30',
+            ],
+
+            'fiscal_year_id' => [
+                'required',
+                'integer',
+                'exists:fiscal_years,id',
+            ],
+
+            'number_length' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:20',
+            ],
+
+            'format' => [
+                'required',
+                'string',
+                'max:200',
+            ],
+
+            'reset_per_fiscal_year' => [
+                'required',
+                'boolean',
+            ],
+
+            'is_active' => [
+                'required',
+                'boolean',
+            ],
+
+            'remarks' => [
+                'nullable',
+                'string',
+            ],
+        ];
+    }
+}

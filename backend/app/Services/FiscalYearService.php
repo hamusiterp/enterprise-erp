@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\FiscalYear;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Models\DocumentSequence;
 
 class FiscalYearService
 {
@@ -121,4 +122,86 @@ class FiscalYearService
 
         return $fiscalYear->fresh();
     }
+
+    public function cloneDocumentSequences(
+    FiscalYear $sourceFiscalYear,
+    FiscalYear $targetFiscalYear
+): int {
+    if ($sourceFiscalYear->id === $targetFiscalYear->id) {
+        throw ValidationException::withMessages([
+            'fiscal_year' =>
+                'Source and target fiscal years cannot be the same.',
+        ]);
+    }
+
+    return DB::transaction(function () use (
+        $sourceFiscalYear,
+        $targetFiscalYear
+    ) {
+        $sourceSequences = DocumentSequence::query()
+            ->where('fiscal_year_id', $sourceFiscalYear->id)
+            ->where('reset_per_fiscal_year', true)
+            ->get();
+
+        $created = 0;
+
+        foreach ($sourceSequences as $sequence) {
+            $exists = DocumentSequence::query()
+                ->where(
+                    'document_type',
+                    $sequence->document_type
+                )
+                ->where(
+                    'fiscal_year_id',
+                    $targetFiscalYear->id
+                )
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            DocumentSequence::create([
+                'document_type' =>
+                    $sequence->document_type,
+
+                'name' =>
+                    $sequence->name,
+
+                'prefix' =>
+                    $sequence->prefix,
+
+                'fiscal_year_id' =>
+                    $targetFiscalYear->id,
+
+                'current_number' => 0,
+
+                'number_length' =>
+                    $sequence->number_length,
+
+                'format' =>
+                    $sequence->format,
+
+                'reset_per_fiscal_year' =>
+                    $sequence->reset_per_fiscal_year,
+
+                'is_active' =>
+                    $sequence->is_active,
+
+                'remarks' =>
+                    $sequence->remarks,
+
+                'created_by' =>
+                    $targetFiscalYear->created_by,
+
+                'updated_by' =>
+                    $targetFiscalYear->updated_by,
+            ]);
+
+            $created++;
+        }
+
+        return $created;
+    });
+}
 }

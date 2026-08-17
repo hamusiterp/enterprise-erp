@@ -303,6 +303,34 @@ export default function MainLayout() {
         ),
         label: 'Fiscal Years',
     },
+    {
+    key: '/settings/document-sequences',
+    icon: (
+        <SettingOutlined />
+    ),
+    label: 'Document Numbering',
+},
+{
+    key: '/settings/tax-rates',
+    icon: (
+        <SettingOutlined />
+    ),
+    label: 'Tax & Statutory Rates',
+},
+{
+    key: '/settings/reporting-periods',
+    icon: (
+        <SettingOutlined />
+    ),
+    label: 'Reporting Periods',
+},
+{
+    key: '/settings/access-policies',
+    icon: (
+        <SettingOutlined />
+    ),
+    label: 'Access Policies',
+},
 ],
 },
             ],

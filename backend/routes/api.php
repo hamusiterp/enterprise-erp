@@ -24,6 +24,12 @@ use App\Http\Controllers\Api\Admin\CompanySettingController;
 
 use App\Http\Controllers\Api\Admin\FiscalYearController;
 
+use App\Http\Controllers\Api\Admin\DocumentSequenceController;
+
+use App\Http\Controllers\Api\Admin\TaxRateController;
+use App\Http\Controllers\Api\Admin\ReportingPeriodController;
+use App\Http\Controllers\Api\Admin\AccessPolicyController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -113,6 +119,103 @@ Route::prefix('settings/fiscal-years')->group(function () {
     Route::post(
         '/{fiscalYear}/lock',
         [FiscalYearController::class, 'lock']
+    );
+
+    Route::post(
+    '/{fiscalYear}/copy-sequences',
+    [FiscalYearController::class, 'copySequences']
+);
+});
+
+Route::prefix('settings/document-sequences')->group(function () {
+
+    Route::get(
+        '/',
+        [DocumentSequenceController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [DocumentSequenceController::class, 'store']
+    );
+
+    Route::get(
+        '/{documentSequence}',
+        [DocumentSequenceController::class, 'show']
+    );
+
+    Route::put(
+        '/{documentSequence}',
+        [DocumentSequenceController::class, 'update']
+    );
+});
+
+Route::prefix('settings/tax-rates')->group(function () {
+
+    Route::get(
+        '/',
+        [TaxRateController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [TaxRateController::class, 'store']
+    );
+
+    Route::get(
+        '/{taxRate}',
+        [TaxRateController::class, 'show']
+    );
+
+    Route::put(
+        '/{taxRate}',
+        [TaxRateController::class, 'update']
+    );
+});
+
+Route::prefix('settings/reporting-periods')->group(function () {
+
+    Route::get(
+        '/',
+        [ReportingPeriodController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [ReportingPeriodController::class, 'store']
+    );
+
+    Route::get(
+        '/{reportingPeriod}',
+        [ReportingPeriodController::class, 'show']
+    );
+
+    Route::put(
+        '/{reportingPeriod}',
+        [ReportingPeriodController::class, 'update']
+    );
+});
+
+Route::prefix('settings/access-policies')->group(function () {
+
+    Route::get(
+        '/',
+        [AccessPolicyController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [AccessPolicyController::class, 'store']
+    );
+
+    Route::get(
+        '/{accessPolicy}',
+        [AccessPolicyController::class, 'show']
+    );
+
+    Route::put(
+        '/{accessPolicy}',
+        [AccessPolicyController::class, 'update']
     );
 });
 

@@ -173,4 +173,44 @@ class FiscalYearController extends Controller
             'data' => $fiscalYear,
         ]);
     }
+
+    public function copySequences(
+    Request $request,
+    FiscalYear $fiscalYear
+): JsonResponse {
+    abort_unless(
+        $request->user()?->can('document-sequences.manage'),
+        403,
+        'You do not have permission to manage document sequences.'
+    );
+
+    $validated = $request->validate([
+        'source_fiscal_year_id' => [
+            'required',
+            'integer',
+            'exists:fiscal_years,id',
+            'different:' . $fiscalYear->id,
+        ],
+    ]);
+
+    $sourceFiscalYear = FiscalYear::findOrFail(
+        $validated['source_fiscal_year_id']
+    );
+
+    $created = $this->fiscalYearService
+        ->cloneDocumentSequences(
+            $sourceFiscalYear,
+            $fiscalYear
+        );
+
+    return response()->json([
+        'success' => true,
+        'message' => $created > 0
+            ? "{$created} document sequence(s) copied successfully."
+            : 'No new document sequences were copied.',
+        'data' => [
+            'created_count' => $created,
+        ],
+    ]);
+}
 }

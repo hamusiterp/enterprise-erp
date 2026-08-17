@@ -37,6 +37,14 @@ import type {
     FiscalYearPayload,
 } from '../../../api/fiscalYears';
 
+import {
+    copyFiscalYearSequences,
+} from '../../../api/fiscalYears';
+
+import {
+    CopyOutlined,
+} from '@ant-design/icons';
+
 const FiscalYearsPage: React.FC = () => {
     const [form] = Form.useForm();
 
@@ -45,6 +53,18 @@ const FiscalYearsPage: React.FC = () => {
     const [saving, setSaving] = useState(false);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const [copyDrawerOpen, setCopyDrawerOpen] =
+    useState(false);
+
+const [copyTarget, setCopyTarget] =
+    useState<FiscalYear | null>(null);
+
+const [sourceFiscalYearId, setSourceFiscalYearId] =
+    useState<number | undefined>();
+
+const [copying, setCopying] =
+    useState(false);
     const [editing, setEditing] =
         useState<FiscalYear | null>(null);
 
@@ -211,6 +231,74 @@ const FiscalYearsPage: React.FC = () => {
         }
     };
 
+    const openCopySequences = (
+    record: FiscalYear
+) => {
+    setCopyTarget(record);
+
+    const previous = data
+        .filter(
+            (item: FiscalYear) =>
+                item.id !== record.id &&
+                dayjs(item.end_date).isBefore(
+                    dayjs(record.start_date)
+                )
+        )
+        .sort(
+            (a: FiscalYear, b: FiscalYear) =>
+                dayjs(b.end_date).valueOf() -
+                dayjs(a.end_date).valueOf()
+        )[0];
+
+    setSourceFiscalYearId(
+        previous?.id
+    );
+
+    setCopyDrawerOpen(true);
+};
+
+const handleCopySequences = async () => {
+    if (
+        !copyTarget ||
+        !sourceFiscalYearId
+    ) {
+        message.warning(
+            'Please select the source fiscal year.'
+        );
+
+        return;
+    }
+
+    try {
+        setCopying(true);
+
+        const createdCount =
+            await copyFiscalYearSequences(
+                copyTarget.id,
+                sourceFiscalYearId
+            );
+
+        if (createdCount > 0) {
+            message.success(
+                `${createdCount} document sequence(s) copied successfully.`
+            );
+        } else {
+            message.info(
+                'No new document sequences were copied.'
+            );
+        }
+
+        setCopyDrawerOpen(false);
+    } catch (error: any) {
+        message.error(
+            error?.response?.data?.message ||
+                'Failed to copy document sequences.'
+        );
+    } finally {
+        setCopying(false);
+    }
+};
+
     const columns = [
         {
             title: 'Name',
@@ -274,6 +362,15 @@ const FiscalYearsPage: React.FC = () => {
                         onClick={() => openEdit(record)}
                     >
                         Edit
+                    </Button>
+                    <Button
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={() =>
+                            openCopySequences(record)
+                        }
+                    >
+                        Copy Sequences
                     </Button>
 
                     {!record.is_current &&
@@ -513,6 +610,87 @@ const FiscalYearsPage: React.FC = () => {
         >
             <Input.TextArea rows={4} />
         </Form.Item>
+    </Form>
+</Drawer>
+<Drawer
+    title="Copy Document Sequences"
+    open={copyDrawerOpen}
+    onClose={() =>
+        setCopyDrawerOpen(false)
+    }
+    width={480}
+    extra={
+        <Space>
+            <Button
+                onClick={() =>
+                    setCopyDrawerOpen(false)
+                }
+            >
+                Cancel
+            </Button>
+
+            <Button
+                type="primary"
+                loading={copying}
+                onClick={
+                    handleCopySequences
+                }
+            >
+                Copy Sequences
+            </Button>
+        </Space>
+    }
+>
+    <Form layout="vertical">
+        <Form.Item
+            label="Target Fiscal Year"
+        >
+            <Input
+                value={
+                    copyTarget?.name || ''
+                }
+                disabled
+            />
+        </Form.Item>
+
+        <Form.Item
+            label="Copy From Fiscal Year"
+            required
+        >
+            <Select
+                value={
+                    sourceFiscalYearId
+                }
+                placeholder="Select source fiscal year"
+                onChange={
+                    setSourceFiscalYearId
+                }
+                options={data
+    .filter(
+        (item: FiscalYear) =>
+            item.id !==
+            copyTarget?.id
+    )
+    .map(
+        (item: FiscalYear) => ({
+            label: item.name,
+            value: item.id,
+        })
+    )}
+            />
+        </Form.Item>
+
+        <div
+            style={{
+                padding: 12,
+                background: '#fafafa',
+                borderRadius: 8,
+            }}
+        >
+            Only sequences configured to reset per fiscal year will be copied.
+            Existing sequences in the target year will not be overwritten.
+            Counters will start from 0.
+        </div>
     </Form>
 </Drawer>
         </div>

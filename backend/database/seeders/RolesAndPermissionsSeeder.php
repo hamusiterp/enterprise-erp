@@ -39,6 +39,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'fiscal-years.manage',
             'fiscal-years.close',
             'fiscal-years.lock',
+            'document-sequences.view',
+            'document-sequences.manage',
+            'tax-rates.view',
+            'tax-rates.manage',
+            'reporting-periods.view',
+            'reporting-periods.manage',
+            'access-policies.view',
+            'access-policies.manage',
         ];
 
         foreach ($permissions as $permission) {

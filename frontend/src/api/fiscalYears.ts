@@ -84,3 +84,17 @@ export const lockFiscalYear = async (
 
     return response.data.data;
 };
+
+export const copyFiscalYearSequences = async (
+    targetFiscalYearId: number,
+    sourceFiscalYearId: number
+): Promise<number> => {
+    const response = await api.post(
+        `/api/settings/fiscal-years/${targetFiscalYearId}/copy-sequences`,
+        {
+            source_fiscal_year_id: sourceFiscalYearId,
+        }
+    );
+
+    return response.data.data.created_count;
+};

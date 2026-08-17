@@ -34,6 +34,10 @@ import SubcontractorsPage from './pages/administration/subcontractors';
 import PermissionsPage from './pages/administration/PermissionsPage';
 import CompanySettingsPage from './pages/settings/company-profile';
 import FiscalYearsPage from './pages/settings/fiscal-years';
+import DocumentSequencesPage from './pages/settings/document-sequences';
+import TaxRatesPage from './pages/settings/tax-rates';
+import ReportingPeriodsPage from './pages/settings/reporting-periods';
+import AccessPoliciesPage from './pages/settings/access-policies';
 
 export default function App() {
     return (
@@ -162,6 +166,24 @@ export default function App() {
                                     <Route
                                     path="/settings/fiscal-years"
                                     element={<FiscalYearsPage />}
+                                />
+                                <Route
+                                    path="/settings/document-sequences"
+                                    element={<DocumentSequencesPage />}
+                                />
+                                <Route
+                                    path="/settings/tax-rates"
+                                    element={<TaxRatesPage />}
+                                />
+
+                                <Route
+                                    path="/settings/reporting-periods"
+                                    element={<ReportingPeriodsPage />}
+                                />
+
+                                <Route
+                                    path="/settings/access-policies"
+                                    element={<AccessPoliciesPage />}
                                 />
 
                         

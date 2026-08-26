@@ -55,6 +55,9 @@ class CompanySettingResource extends JsonResource
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
 
+            'stock_management_enabled' =>
+    (bool) $this->stock_management_enabled,
+
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

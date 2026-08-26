@@ -59,7 +59,9 @@ const defaultFormValues:
     item_no: '',
     item_description: '',
     category: undefined,
-    unit: undefined,
+
+    uom_id: undefined,
+
     type: undefined,
     inventory: 'Stock',
     product_date: null,
@@ -199,34 +201,35 @@ function ItemsPage() {
   }, [loadItems]);
 
   const setItemFormValues = (
-    item: Item,
-  ) => {
-    form.setFieldsValue({
-      item_no:
-        item.item_no,
+  item: Item,
+) => {
+  form.setFieldsValue({
+    item_no:
+      item.item_no,
 
-      item_description:
-        item.item_description,
+    item_description:
+      item.item_description,
 
-      category:
-        item.category,
+    category:
+      item.category,
 
-      unit:
-        item.unit,
+    uom_id:
+      item.uom_id ??
+      undefined,
 
-      type:
-        item.type,
+    type:
+      item.type,
 
-      inventory:
-        item.inventory,
+    inventory:
+      item.inventory,
 
-      product_date:
-        item.product_date,
+    product_date:
+      item.product_date,
 
-      status:
-        item.status,
-    });
-  };
+    status:
+      item.status,
+  });
+};
 
   const handleTableChange = (
     params:
@@ -377,40 +380,38 @@ function ItemsPage() {
         setSaving(true);
 
         const payload:
-          ItemFormValues = {
-            item_no: '',
+  ItemFormValues = {
+    item_no: '',
 
-            item_description:
-              normalizeText(
-                values.item_description,
-              ),
+    item_description:
+      normalizeText(
+        values.item_description,
+      ),
 
-            category:
-              normalizeText(
-                values.category,
-              ),
+    category:
+      normalizeText(
+        values.category,
+      ),
 
-            unit:
-              normalizeText(
-                values.unit,
-              ),
+    uom_id:
+      values.uom_id,
 
-            type:
-              normalizeText(
-                values.type,
-              ),
+    type:
+      normalizeText(
+        values.type,
+      ),
 
-            inventory:
-              values.inventory,
+    inventory:
+      values.inventory,
 
-            product_date:
-              normalizeText(
-                values.product_date,
-              ) || null,
+    product_date:
+      normalizeText(
+        values.product_date,
+      ) || null,
 
-            status:
-              values.status,
-          };
+    status:
+      values.status,
+  };
 
         if (
           drawerMode === 'edit'

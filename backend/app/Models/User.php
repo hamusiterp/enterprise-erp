@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -36,4 +37,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function departments(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Department::class,
+        'user_departments'
+    )
+        ->withPivot([
+            'is_primary',
+            'is_active',
+            'effective_from',
+            'effective_to',
+        ])
+        ->withTimestamps();
+}
 }

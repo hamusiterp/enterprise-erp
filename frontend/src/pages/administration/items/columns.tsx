@@ -8,7 +8,6 @@ import {
 import {
   Button,
   Dropdown,
-  
   Tag,
   Typography,
 } from 'antd';
@@ -47,6 +46,7 @@ export function createItemColumns({
       sorter: true,
       fixed: 'left',
       width: 140,
+
       render: (
         value: string | null,
       ) => (
@@ -63,6 +63,7 @@ export function createItemColumns({
       sorter: true,
       width: 300,
       ellipsis: true,
+
       render: (
         value: string | null,
       ) => value || '-',
@@ -74,20 +75,43 @@ export function createItemColumns({
       key: 'category',
       sorter: true,
       width: 180,
+
       render: (
         value: string | null,
       ) => value || '-',
     },
 
     {
-      title: 'Unit',
-      dataIndex: 'unit',
-      key: 'unit',
-      sorter: true,
-      width: 110,
+      title: 'Unit of Measurement',
+      key: 'uom',
+      width: 180,
+
       render: (
-        value: string | null,
-      ) => value || '-',
+        _value,
+        item,
+      ) => {
+        if (item.uom) {
+          return (
+            <span>
+              <Text strong>
+                {item.uom.code}
+              </Text>
+
+              {' - '}
+
+              {item.uom.name}
+            </span>
+          );
+        }
+
+        /*
+         * Existing old items may still only
+         * contain the legacy unit field.
+         */
+        return (
+          item.unit || '-'
+        );
+      },
     },
 
     {
@@ -96,15 +120,17 @@ export function createItemColumns({
       key: 'type',
       sorter: true,
       width: 150,
+
       render: (
         value: string | null,
-      ) => value ? (
-        <Tag>
-          {value}
-        </Tag>
-      ) : (
-        '-'
-      ),
+      ) =>
+        value ? (
+          <Tag>
+            {value}
+          </Tag>
+        ) : (
+          '-'
+        ),
     },
 
     {
@@ -113,21 +139,23 @@ export function createItemColumns({
       key: 'inventory',
       sorter: true,
       width: 140,
+
       render: (
         value: string | null,
-      ) => value ? (
-        <Tag
-          color={
-            value === 'Stock'
-              ? 'blue'
-              : 'default'
-          }
-        >
-          {value}
-        </Tag>
-      ) : (
-        '-'
-      ),
+      ) =>
+        value ? (
+          <Tag
+            color={
+              value === 'Stock'
+                ? 'blue'
+                : 'default'
+            }
+          >
+            {value}
+          </Tag>
+        ) : (
+          '-'
+        ),
     },
 
     {
@@ -136,6 +164,7 @@ export function createItemColumns({
       key: 'product_date',
       sorter: true,
       width: 150,
+
       render: (
         value: string | null,
       ) => value || '-',
@@ -147,9 +176,11 @@ export function createItemColumns({
       key: 'registered_by',
       sorter: true,
       width: 170,
+
       render: (
         value: string | null,
-      ) => value || 'System',
+      ) =>
+        value || 'System',
     },
 
     {
@@ -158,6 +189,7 @@ export function createItemColumns({
       key: 'date_registered',
       sorter: true,
       width: 160,
+
       render: (
         value: string | null,
       ) => value || '-',
@@ -169,6 +201,7 @@ export function createItemColumns({
       key: 'status',
       sorter: true,
       width: 110,
+
       render: (
         value: string,
       ) => (
@@ -188,48 +221,61 @@ export function createItemColumns({
       fixed: 'right',
       width: 90,
       align: 'center',
+
       render: (
         _,
         item,
       ) => {
         const menuItems:
           MenuProps['items'] = [
-            {
-              key: 'view',
-              icon: <EyeOutlined />,
-              label: 'View',
-              onClick: () =>
-                onView(item),
-            },
+          {
+            key: 'view',
+            icon:
+              <EyeOutlined />,
+            label:
+              'View',
 
-            {
-              key: 'edit',
-              icon: <EditOutlined />,
-              label: 'Edit',
-              onClick: () =>
-                onEdit(item),
-            },
+            onClick: () =>
+              onView(item),
+          },
 
-            {
-              type: 'divider',
-            },
+          {
+            key: 'edit',
+            icon:
+              <EditOutlined />,
+            label:
+              'Edit',
 
-            {
-              key: 'delete',
-              icon: <DeleteOutlined />,
-              label: 'Delete',
-              danger: true,
-              onClick: () =>
-                onDelete(item),
-            },
-          ];
+            onClick: () =>
+              onEdit(item),
+          },
+
+          {
+            type: 'divider',
+          },
+
+          {
+            key: 'delete',
+            icon:
+              <DeleteOutlined />,
+            label:
+              'Delete',
+            danger: true,
+
+            onClick: () =>
+              onDelete(item),
+          },
+        ];
 
         return (
           <Dropdown
             menu={{
-              items: menuItems,
+              items:
+                menuItems,
             }}
-            trigger={['click']}
+            trigger={[
+              'click',
+            ]}
             placement="bottomRight"
           >
             <Button

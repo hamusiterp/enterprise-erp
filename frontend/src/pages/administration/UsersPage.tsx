@@ -29,7 +29,11 @@ import {
   Tag,
   Tooltip,
   Typography,
+  DatePicker,
+  Divider,
+  Switch,
 } from 'antd';
+
 
 import type {
   MenuProps,
@@ -60,6 +64,23 @@ import type {
 } from '../../types/user';
 
 import '../../styles/users.css';
+import dayjs from 'dayjs';
+import {
+  fetchDepartmentOptions,
+} from '../../api/departments';
+
+import {
+  fetchUserDepartments,
+  updateUserDepartments,
+} from '../../api/userDepartments';
+
+import type {
+  DepartmentOption,
+} from '../../api/departments';
+
+import type {
+  SaveUserDepartmentAssignment,
+} from '../../api/userDepartments';
 
 const { Title, Text } = Typography;
 
@@ -137,6 +158,15 @@ function UsersPage() {
   const { message } = App.useApp();
 
   const [userForm] = Form.useForm<UserFormValues>();
+  const [departmentForm] = Form.useForm<{
+  departments: Array<{
+    department_id: number;
+    is_primary: boolean;
+    is_active: boolean;
+    effective_from: dayjs.Dayjs | null;
+    effective_to: dayjs.Dayjs | null;
+  }>;
+}>();
   const [passwordForm] = Form.useForm<{
     password: string;
     password_confirmation: string;
@@ -144,6 +174,12 @@ function UsersPage() {
 
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+
+  const [departmentOptions, setDepartmentOptions] =
+  useState<DepartmentOption[]>([]);
+
+const [isDepartmentsLoading, setIsDepartmentsLoading] =
+  useState(false);
 
   const [filters, setFilters] =
     useState<UserFilters>(DEFAULT_FILTERS);
@@ -206,6 +242,26 @@ function UsersPage() {
     }
   }, [message]);
 
+  const loadDepartmentOptions = useCallback(async () => {
+  try {
+    setIsDepartmentsLoading(true);
+
+    const data =
+      await fetchDepartmentOptions();
+
+    setDepartmentOptions(data);
+  } catch (error) {
+    message.error(
+      getErrorMessage(
+        error,
+        'Unable to load departments.',
+      ),
+    );
+  } finally {
+    setIsDepartmentsLoading(false);
+  }
+}, [message]);
+
   useEffect(() => {
     void loadUsers();
   }, [loadUsers]);
@@ -213,6 +269,10 @@ function UsersPage() {
   useEffect(() => {
     void loadRoles();
   }, [loadRoles]);
+
+  useEffect(() => {
+  void loadDepartmentOptions();
+}, [loadDepartmentOptions]);
 
   const openCreateDrawer = () => {
     setSelectedUser(null);
@@ -224,8 +284,63 @@ function UsersPage() {
       roles: [],
     });
 
+    departmentForm.resetFields();
+
+departmentForm.setFieldsValue({
+  departments: [],
+});
+
     setIsUserDrawerOpen(true);
   };
+
+  const loadUserDepartments = async (
+  userId: number,
+) => {
+  try {
+    setIsDepartmentsLoading(true);
+
+    const assignments =
+      await fetchUserDepartments(userId);
+
+    departmentForm.setFieldsValue({
+      departments: assignments.map(
+        (assignment) => ({
+          department_id:
+            assignment.department_id,
+
+          is_primary:
+            assignment.is_primary,
+
+          is_active:
+            assignment.is_active,
+
+          effective_from:
+            assignment.effective_from
+              ? dayjs(
+                  assignment.effective_from,
+                )
+              : null,
+
+          effective_to:
+            assignment.effective_to
+              ? dayjs(
+                  assignment.effective_to,
+                )
+              : null,
+        }),
+      ),
+    });
+  } catch (error) {
+    message.error(
+      getErrorMessage(
+        error,
+        'Unable to load user departments.',
+      ),
+    );
+  } finally {
+    setIsDepartmentsLoading(false);
+  }
+};
 
   const openEditDrawer = (user: SystemUser) => {
     setSelectedUser(user);
@@ -239,6 +354,10 @@ function UsersPage() {
       password_confirmation: undefined,
     });
 
+    departmentForm.resetFields();
+
+void loadUserDepartments(user.id);
+
     setIsUserDrawerOpen(true);
   };
 
@@ -246,6 +365,7 @@ function UsersPage() {
     setIsUserDrawerOpen(false);
     setSelectedUser(null);
     userForm.resetFields();
+    departmentForm.resetFields();
   };
 
   const handleUserSubmit = async (
@@ -255,9 +375,56 @@ function UsersPage() {
 
     try {
       if (selectedUser) {
-        await updateUser(selectedUser.id, values);
-        message.success('User updated successfully.');
-      } else {
+  await updateUser(
+    selectedUser.id,
+    values,
+  );
+
+  const departmentValues =
+    await departmentForm.validateFields();
+
+  const departments:
+    SaveUserDepartmentAssignment[] =
+    (
+      departmentValues.departments ?? []
+    ).map((department) => ({
+      department_id:
+        department.department_id,
+
+      is_primary:
+        Boolean(
+          department.is_primary,
+        ),
+
+      is_active:
+        Boolean(
+          department.is_active,
+        ),
+
+      effective_from:
+        department.effective_from
+          ? department.effective_from.format(
+              'YYYY-MM-DD',
+            )
+          : null,
+
+      effective_to:
+        department.effective_to
+          ? department.effective_to.format(
+              'YYYY-MM-DD',
+            )
+          : null,
+    }));
+
+  await updateUserDepartments(
+    selectedUser.id,
+    departments,
+  );
+
+  message.success(
+    'User and department assignments updated successfully.',
+  );
+} else {
         await createUser(values);
         message.success('User created successfully.');
       }
@@ -817,7 +984,7 @@ function UsersPage() {
         title={
           selectedUser ? 'Edit User' : 'Create New User'
         }
-        width={520}
+        width={680}
         open={isUserDrawerOpen}
         destroyOnHidden
         onClose={closeUserDrawer}
@@ -993,13 +1160,242 @@ function UsersPage() {
               }),
             ]}
           >
-            <Input.Password
+                        <Input.Password
               autoComplete="new-password"
               placeholder="Re-enter password"
             />
           </Form.Item>
         </Form>
+
+
+        {/* =========================================
+            DEPARTMENT ASSIGNMENTS
+            Only shown when editing an existing user
+        ========================================== */}
+        {selectedUser && (
+          <>
+            <Divider>
+  Department Assignments
+</Divider>
+
+            <Text type="secondary">
+              Assign this user to the departments whose workflow
+              tasks they are allowed to receive.
+            </Text>
+
+            <Form
+              form={departmentForm}
+              layout="vertical"
+              style={{ marginTop: 16 }}
+            >
+              <Form.List name="departments">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(
+                      ({ key, name, ...restField }) => (
+                        <Card
+                          key={key}
+                          size="small"
+                          style={{ marginBottom: 12 }}
+                        >
+                          <Row gutter={12}>
+                            <Col span={24}>
+                              <Form.Item
+                                {...restField}
+                                name={[
+                                  name,
+                                  'department_id',
+                                ]}
+                                label="Department"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      'Select a department.',
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  showSearch
+                                  loading={
+                                    isDepartmentsLoading
+                                  }
+                                  placeholder="Select department"
+                                  optionFilterProp="label"
+                                  options={departmentOptions.map(
+                                    (department) => ({
+                                      label:
+                                        department.department_name,
+                                      value:
+                                        department.id,
+                                    }),
+                                  )}
+                                />
+                              </Form.Item>
+                            </Col>
+                            <Col xs={24} sm={8}>
+                              <Form.Item
+                                {...restField}
+                                name={[
+                                  name,
+                                  'is_primary',
+                                ]}
+                                label="Primary Department"
+                                valuePropName="checked"
+                              >
+                                <Switch
+                                  onChange={(checked) => {
+                                    const currentDepartments =
+                                      departmentForm.getFieldValue(
+                                        'departments',
+                                      ) ?? [];
+
+                                    if (checked) {
+                                      currentDepartments.forEach(
+                                        (
+                                          _department: unknown,
+                                          index: number,
+                                        ) => {
+                                          departmentForm.setFieldValue(
+                                            [
+                                              'departments',
+                                              index,
+                                              'is_primary',
+                                            ],
+                                            index === name,
+                                          );
+                                        },
+                                      );
+
+                                      departmentForm.setFieldValue(
+                                        [
+                                          'departments',
+                                          name,
+                                          'is_active',
+                                        ],
+                                        true,
+                                      );
+
+                                      return;
+                                    }
+
+                                    departmentForm.setFieldValue(
+                                      [
+                                        'departments',
+                                        name,
+                                        'is_primary',
+                                      ],
+                                      false,
+                                    );
+                                  }}
+                                />
+                              </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={8}>
+                              <Form.Item
+                                {...restField}
+                                name={[
+                                  name,
+                                  'is_active',
+                                ]}
+                                label="Active"
+                                valuePropName="checked"
+                              >
+                                <Switch
+                                  onChange={(checked) => {
+                                    if (!checked) {
+                                      departmentForm.setFieldValue(
+                                        [
+                                          'departments',
+                                          name,
+                                          'is_primary',
+                                        ],
+                                        false,
+                                      );
+                                    }
+                                  }}
+                                />
+                              </Form.Item>
+                            </Col>
+
+
+                            <Col xs={24} sm={8}>
+                              <Form.Item
+                                {...restField}
+                                name={[
+                                  name,
+                                  'effective_from',
+                                ]}
+                                label="Effective From"
+                              >
+                                <DatePicker
+                                  style={{
+                                    width: '100%',
+                                  }}
+                                />
+                              </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                {...restField}
+                                name={[
+                                  name,
+                                  'effective_to',
+                                ]}
+                                label="Effective To"
+                              >
+                                <DatePicker
+                                  style={{
+                                    width: '100%',
+                                  }}
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+
+                          <Button
+                            danger
+                            type="link"
+                            icon={<DeleteOutlined />}
+                            onClick={() =>
+                              remove(name)
+                            }
+                          >
+                            Remove Department
+                          </Button>
+                        </Card>
+                      ),
+                    )}
+
+                    <Button
+                      type="dashed"
+                      block
+                      icon={<PlusOutlined />}
+                      onClick={() =>
+                        add({
+                          department_id:
+                            undefined,
+                          is_primary:
+                            fields.length === 0,
+                          is_active: true,
+                          effective_from: null,
+                          effective_to: null,
+                        })
+                      }
+                    >
+                      Add Department
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </Form>
+          </>
+        )}
+
       </Drawer>
+
 
       <Drawer
         title="Reset User Password"

@@ -14,6 +14,7 @@ import {
   Switch,
   Upload,
   message,
+  Radio,
 } from 'antd';
 import {
   SaveOutlined,
@@ -47,57 +48,89 @@ const CompanySettingsPage: React.FC = () => {
   const [faviconFileList, setFaviconFileList] =
     useState<UploadFile[]>([]);
 
-  const loadSettings = async () => {
-    try {
-      setLoading(true);
+const loadSettings = async () => {
+  try {
+    setLoading(true);
 
-      const data = await getCompanySettings();
+    const data = await getCompanySettings();
 
-      setSettings(data);
+    setSettings(data);
 
-      form.setFieldsValue({
-        ...data,
-      });
-    } catch (error: any) {
-      message.error(
-        error?.response?.data?.message ||
-          'Failed to load company settings.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    form.setFieldsValue({
+      ...data,
+
+      stock_management_enabled:
+        data.stock_management_enabled
+          ? 'yes'
+          : 'no',
+    });
+  } catch (error: any) {
+    message.error(
+      error?.response?.data?.message ||
+        'Failed to load company settings.'
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     loadSettings();
   }, []);
 
-  const handleSave = async () => {
-    try {
-      const values = await form.validateFields();
+const handleSave = async () => {
+  try {
+    const values =
+      await form.validateFields();
 
-      setSaving(true);
+    setSaving(true);
 
-      const updated = await updateCompanySettings(values);
+    const payload = {
+      ...values,
 
-      setSettings(updated);
+      stock_management_enabled:
+        values.stock_management_enabled ===
+        'yes',
+    };
 
-      message.success(
-        'Company settings updated successfully.'
+    const updated =
+      await updateCompanySettings(
+        payload
       );
-    } catch (error: any) {
-      if (error?.errorFields) {
-        return;
-      }
 
-      message.error(
-        error?.response?.data?.message ||
-          'Failed to update company settings.'
-      );
-    } finally {
-      setSaving(false);
+    setSettings(updated);
+
+    // Keep Select synchronized after save
+    form.setFieldsValue({
+      ...updated,
+
+      stock_management_enabled:
+        updated.stock_management_enabled
+          ? 'yes'
+          : 'no',
+    });
+
+    message.success(
+      'Company settings updated successfully.'
+    );
+  } catch (error: any) {
+    if (error?.errorFields) {
+      return;
     }
-  };
+
+    console.error(
+      'Company settings save error:',
+      error
+    );
+
+    message.error(
+      error?.response?.data?.message ||
+        'Failed to update company settings.'
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleBrandingUpload = async () => {
     const logoFile =
@@ -470,6 +503,31 @@ const CompanySettingsPage: React.FC = () => {
           >
             <Switch />
           </Form.Item>
+
+          <Form.Item
+  name="stock_management_enabled"
+  label="Stock Available?"
+  rules={[
+    {
+      required: true,
+      message: 'Select whether stock management is available.',
+    },
+  ]}
+>
+  <Select
+    placeholder="Select Yes or No"
+    options={[
+      {
+        label: 'Yes',
+        value: 'yes',
+      },
+      {
+        label: 'No',
+        value: 'no',
+      },
+    ]}
+  />
+</Form.Item>
 
           <Button
             type="primary"

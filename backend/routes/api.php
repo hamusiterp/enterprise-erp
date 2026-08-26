@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\ChequeController;
 use App\Http\Controllers\Api\Admin\SalesSubcontractorController;
 use App\Http\Controllers\Api\PermissionController;
 
+
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\Admin\CompanySettingController;
 
@@ -29,6 +30,18 @@ use App\Http\Controllers\Api\Admin\DocumentSequenceController;
 use App\Http\Controllers\Api\Admin\TaxRateController;
 use App\Http\Controllers\Api\Admin\ReportingPeriodController;
 use App\Http\Controllers\Api\Admin\AccessPolicyController;
+use App\Http\Controllers\Api\Admin\WorkflowDefinitionController;
+use App\Http\Controllers\Api\Admin\UserDepartmentController;
+use App\Http\Controllers\Api\Admin\WorkflowRoutingRuleController;
+use App\Http\Controllers\Api\Admin\UnitOfMeasurementController;
+use App\Http\Controllers\Api\Store\StoreRequisitionController;
+use App\Http\Controllers\Api\Store\StoreRequisitionApprovalController;
+
+use App\Http\Controllers\Api\Store\StoreRequisitionDocumentReceivingController;
+use App\Http\Controllers\Api\Store\StoreRequisitionStockCheckController;
+use App\Http\Controllers\Api\Store\StoreRequisitionPrApprovalController;
+use App\Http\Controllers\Api\Store\StoreRequisitionCreatePrController;
+use App\Http\Controllers\Api\Store\PurchaseRequisitionApprovalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -219,6 +232,57 @@ Route::prefix('settings/access-policies')->group(function () {
     );
 });
 
+Route::prefix('settings/workflows')->group(function () {
+
+    Route::get(
+        '/',
+        [WorkflowDefinitionController::class, 'index']
+    );
+
+    Route::post(
+        '/',
+        [WorkflowDefinitionController::class, 'store']
+    );
+
+    Route::get(
+        '/{workflowDefinition}',
+        [WorkflowDefinitionController::class, 'show']
+    );
+
+    Route::put(
+        '/{workflowDefinition}',
+        [WorkflowDefinitionController::class, 'update']
+    );
+});
+
+Route::prefix('units-of-measurement')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [
+                UnitOfMeasurementController::class,
+                'index',
+            ]
+        );
+
+        Route::post(
+            '/',
+            [
+                UnitOfMeasurementController::class,
+                'store',
+            ]
+        );
+
+        Route::put(
+            '/{unitOfMeasurement}',
+            [
+                UnitOfMeasurementController::class,
+                'update',
+            ]
+        );
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Administration Routes
@@ -267,6 +331,8 @@ Route::prefix('settings/access-policies')->group(function () {
             '/departments/{department}/status',
             [DepartmentController::class, 'changeStatus']
         );
+
+        
 
         Route::apiResource(
             '/departments',
@@ -371,6 +437,63 @@ Route::prefix('settings/access-policies')->group(function () {
             '/permissions',
             PermissionController::class
         );
+
+        Route::prefix('admin/users/{user}/departments')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [
+                UserDepartmentController::class,
+                'index',
+            ]
+        );
+
+        Route::put(
+            '/',
+            [
+                UserDepartmentController::class,
+                'update',
+            ]
+        );
+    });
+
+    Route::prefix(
+    'workflows/{workflow}/routing-rules'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            WorkflowRoutingRuleController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/',
+        [
+            WorkflowRoutingRuleController::class,
+            'store',
+        ]
+    );
+
+    Route::put(
+        '/{routingRule}',
+        [
+            WorkflowRoutingRuleController::class,
+            'update',
+        ]
+    );
+
+    Route::delete(
+        '/{routingRule}',
+        [
+            WorkflowRoutingRuleController::class,
+            'destroy',
+        ]
+    );
+});
 
         /*
         |--------------------------------------------------------------------------
@@ -883,6 +1006,214 @@ Route::apiResource(
 ]);
 
     }); // end admin
+
+Route::prefix(
+    'store-requisitions/approvals'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            StoreRequisitionApprovalController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}/start',
+        [
+            StoreRequisitionApprovalController::class,
+            'start',
+        ]
+    );
+
+    Route::post(
+        '/{task}/action',
+        [
+            StoreRequisitionApprovalController::class,
+            'action',
+        ]
+    );
+});
+
+Route::prefix(
+    'store-requisitions/document-receiving'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            StoreRequisitionDocumentReceivingController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}/receive',
+        [
+            StoreRequisitionDocumentReceivingController::class,
+            'receive',
+        ]
+    )->whereNumber('task');
+});
+
+Route::prefix(
+    'store-requisitions/stock-check'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            StoreRequisitionStockCheckController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}/check',
+        [
+            StoreRequisitionStockCheckController::class,
+            'check',
+        ]
+    )->whereNumber('task');
+});
+
+Route::prefix(
+    'store-requisitions/pr-approvals'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            StoreRequisitionPrApprovalController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}/action',
+        [
+            StoreRequisitionPrApprovalController::class,
+            'action',
+        ]
+    )->whereNumber('task');
+});
+Route::prefix(
+    'store-requisitions/create-pr'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            StoreRequisitionCreatePrController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}',
+        [
+            StoreRequisitionCreatePrController::class,
+            'store',
+        ]
+    )->whereNumber('task');
+});
+
+Route::prefix(
+    'store-requisitions/pr-approvals'
+)->group(function () {
+
+    Route::get(
+        '/',
+        [
+            PurchaseRequisitionApprovalController::class,
+            'index',
+        ]
+    );
+
+    Route::post(
+        '/{task}/action',
+        [
+            PurchaseRequisitionApprovalController::class,
+            'action',
+        ]
+    )->whereNumber('task');
+});
+
+Route::prefix('store-requisitions')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [
+                StoreRequisitionController::class,
+                'index',
+            ]
+        );
+
+        Route::post(
+            '/',
+            [
+                StoreRequisitionController::class,
+                'store',
+            ]
+        );
+
+        Route::get(
+            '/{storeRequisition}',
+            [
+                StoreRequisitionController::class,
+                'show',
+            ]
+        );
+        Route::put(
+    '/{storeRequisition}',
+    [
+        StoreRequisitionController::class,
+        'update',
+    ]
+);
+    });
+Route::prefix('admin/users/{user}')
+    ->group(function () {
+
+        Route::get(
+            '/departments',
+            [
+                UserDepartmentController::class,
+                'index',
+            ]
+        )->whereNumber('user');
+
+        Route::post(
+            '/departments',
+            [
+                UserDepartmentController::class,
+                'store',
+            ]
+        )->whereNumber('user');
+
+        Route::put(
+            '/departments/{departmentAssignment}',
+            [
+                UserDepartmentController::class,
+                'update',
+            ]
+        )
+            ->whereNumber('user')
+            ->whereNumber('departmentAssignment');
+
+        Route::delete(
+            '/departments/{departmentAssignment}',
+            [
+                UserDepartmentController::class,
+                'destroy',
+            ]
+        )
+            ->whereNumber('user')
+            ->whereNumber('departmentAssignment');
+    });
+
 
 }); // end auth:sanctum
 

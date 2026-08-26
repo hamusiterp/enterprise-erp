@@ -10,50 +10,83 @@ class ItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' =>
+                $this->id,
 
-            'id' => $this->id,
+            'item_no' =>
+                $this->item_no,
 
-            'item_no' => $this->item_no,
+            'item_description' =>
+                $this->item_description,
 
-            'item_description'
-                => $this->item_description,
+            'category' =>
+                $this->category,
 
-            'category'
-                => $this->category,
+            /*
+             * New UOM relationship
+             */
+            'uom_id' =>
+                $this->uom_id,
 
-            'unit'
-                => $this->unit,
+            'uom' => $this->unitOfMeasurement
+                ? [
+                    'id' =>
+                        $this->unitOfMeasurement->id,
 
-            'status'
-                => $this->status,
+                    'code' =>
+                        $this->unitOfMeasurement->code,
 
-            'product_date'
-                => $this->product_date?->format('Y-m-d'),
+                    'name' =>
+                        $this->unitOfMeasurement->name,
 
-            'type'
-                => $this->type,
+                    'symbol' =>
+                        $this->unitOfMeasurement->symbol,
 
-            'inventory'
-                => $this->inventory,
+                    'decimal_places' =>
+                        $this->unitOfMeasurement->decimal_places,
+                ]
+                : null,
 
-            'registered_by'
-                => $this->registered_by,
+            /*
+             * Keep legacy value temporarily.
+             */
+            'unit' =>
+                $this->unit,
 
-            'registered_by_user_id'
-                => $this->registered_by_user_id,
+            'status' =>
+                $this->status,
 
-            'date_registered'
-                => $this->date_registered?->format('Y-m-d'),
+            'product_date' =>
+                $this->product_date
+                    ?->format('Y-m-d'),
 
-            'created_at'
-                => $this->created_at?->format('Y-m-d H:i:s'),
+            'type' =>
+                $this->type,
 
-            'updated_at'
-                => $this->updated_at?->format('Y-m-d H:i:s'),
+            'inventory' =>
+                $this->inventory,
 
-            'deleted_at'
-                => $this->deleted_at?->format('Y-m-d H:i:s'),
+            'registered_by' =>
+                $this->registered_by,
 
+            'registered_by_user_id' =>
+                $this->registered_by_user_id,
+
+            'date_registered' =>
+                $this->date_registered
+                    ?->format('Y-m-d'),
+
+            'created_at' =>
+                $this->created_at
+                    ?->format('Y-m-d H:i:s'),
+
+            'updated_at' =>
+                $this->updated_at
+                    ?->format('Y-m-d H:i:s'),
+
+            'deleted_at' =>
+                $this->deleted_at
+                    ?->format('Y-m-d H:i:s'),
         ];
     }
 }

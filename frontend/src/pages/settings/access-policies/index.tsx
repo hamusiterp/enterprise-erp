@@ -136,7 +136,7 @@ const loadPermissions = async () => {
             await fetchPermissions(
                 1,
                 '',
-                1000
+                100
             );
 
         setPermissions(response.data);

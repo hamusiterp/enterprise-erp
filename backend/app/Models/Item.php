@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\UnitOfMeasurement;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 //use Spatie\Activitylog\LogOptions;
 //use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -19,18 +21,19 @@ class Item extends Model
     protected $table = 'sales_item';
 
     protected $fillable = [
-        'item_no',
-        'item_description',
-        'category',
-        'unit',
-        'status',
-        'product_date',
-        'type',
-        'inventory',
-        'registered_by',
-        'registered_by_user_id',
-        'date_registered',
-    ];
+    'item_no',
+    'item_description',
+    'category',
+    'uom_id',
+    'unit',
+    'status',
+    'product_date',
+    'type',
+    'inventory',
+    'registered_by',
+    'registered_by_user_id',
+    'date_registered',
+];
 
     protected function casts(): array
     {
@@ -42,6 +45,14 @@ class Item extends Model
             'deleted_at' => 'datetime',
         ];
     }
+
+    public function unitOfMeasurement(): BelongsTo
+{
+    return $this->belongsTo(
+        UnitOfMeasurement::class,
+        'uom_id'
+    );
+}
 
     public function registeredByUser(): BelongsTo
     {
@@ -108,6 +119,14 @@ class Item extends Model
     ): Builder {
         return $query->where('status', 'active');
     }
+
+    public function storeStocks(): HasMany
+{
+    return $this->hasMany(
+        StoreStock::class,
+        'item_id'
+    );
+}
 
    
 }

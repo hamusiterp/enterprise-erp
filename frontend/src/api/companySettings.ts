@@ -37,6 +37,8 @@ export interface CompanySetting {
     print_footer?: string | null;
 
     is_active: boolean;
+
+    stock_management_enabled: boolean;
 }
 
 export const getCompanySettings = async (): Promise<CompanySetting> => {

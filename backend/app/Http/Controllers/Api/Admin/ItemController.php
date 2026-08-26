@@ -174,7 +174,7 @@ class ItemController extends Controller
             'success' => true,
             'message' => 'Item created successfully.',
             'data' => new ItemResource(
-                $item->fresh()
+                $item->fresh()->load('unitOfMeasurement')
             ),
         ], 201);
     }
@@ -222,7 +222,7 @@ class ItemController extends Controller
             'success' => true,
             'message' => 'Item updated successfully.',
             'data' => new ItemResource(
-                $item->fresh()
+                $item->fresh()->load('unitOfMeasurement')
             ),
         ]);
     }
@@ -296,7 +296,7 @@ class ItemController extends Controller
             'success' => true,
             'message' => 'Item restored successfully.',
             'data' => new ItemResource(
-                $item->fresh()
+                $item->fresh()->load('unitOfMeasurement')
             ),
         ]);
     }
@@ -342,7 +342,7 @@ class ItemController extends Controller
             'message' =>
                 'Item status updated successfully.',
             'data' => new ItemResource(
-                $item->fresh()
+                $item->fresh()->load('unitOfMeasurement')
             ),
         ]);
     }
@@ -603,6 +603,7 @@ class ItemController extends Controller
         array $filters
     ): Builder {
         return Item::query()
+    ->with('unitOfMeasurement')
             ->search(
                 $filters['search'] ?? null
             )

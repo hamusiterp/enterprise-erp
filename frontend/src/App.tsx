@@ -38,6 +38,16 @@ import DocumentSequencesPage from './pages/settings/document-sequences';
 import TaxRatesPage from './pages/settings/tax-rates';
 import ReportingPeriodsPage from './pages/settings/reporting-periods';
 import AccessPoliciesPage from './pages/settings/access-policies';
+import WorkflowSettingsPage from './pages/settings/workflows';
+import UnitsOfMeasurementPage from './pages/settings/units-of-measurement';
+import StoreRequisitionCreatePage from './pages/store/store-requisitions/create';
+import StoreRequisitionPrintPage from './pages/store/store-requisitions/print';
+import StoreRequisitionListPage from './pages/store/store-requisitions';
+import StoreRequisitionEditPage from './pages/store/store-requisitions/edit';
+import StoreRequisitionApprovalsPage from './pages/store/store-requisitions/approvals';
+import StoreRequisitionDocumentReceivingPage from './pages/store/store-requisitions/document-receiving';
+import StoreRequisitionStockCheckPage from './pages/store/store-requisitions/stock-check';
+import StoreRequisitionCreatePrPage from './pages/store/purchase_requisitions/create-pr';
 
 export default function App() {
     return (
@@ -186,6 +196,54 @@ export default function App() {
                                     element={<AccessPoliciesPage />}
                                 />
 
+                                <Route
+                                    path="/settings/workflows"
+                                    element={<WorkflowSettingsPage />}
+                                />
+
+                                <Route
+                                path="/settings/units-of-measurement"
+                                element={<UnitsOfMeasurementPage />}
+                                />
+                                <Route
+  path="/store/store-requisitions/create"
+  element={<StoreRequisitionCreatePage />}
+/>
+
+<Route
+  path="/store/store-requisitions/:id/print"
+  element={<StoreRequisitionPrintPage />}
+/>
+<Route
+  path="/store/store-requisitions"
+  element={<StoreRequisitionListPage />}
+/>
+<Route
+  path="/store/store-requisitions/:id/edit"
+  element={<StoreRequisitionEditPage />}
+/>
+<Route
+  path="/store/store-requisitions/approvals"
+  element={<StoreRequisitionApprovalsPage />}
+/>
+<Route
+  path="/store/store-requisitions/document-receiving"
+  element={
+    <StoreRequisitionDocumentReceivingPage />
+  }
+/>
+<Route
+  path="/store/store-requisitions/stock-check"
+  element={
+    <StoreRequisitionStockCheckPage />
+  }
+/>
+<Route
+  path="/store/purchase_requisitions/create-pr"
+  element={
+    <StoreRequisitionCreatePrPage />
+  }
+/>
                         
                 </Route>
             </Route>

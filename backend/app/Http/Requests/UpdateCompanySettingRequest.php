@@ -42,6 +42,11 @@ class UpdateCompanySettingRequest extends FormRequest
             'print_footer' => ['nullable', 'string'],
 
             'is_active' => ['required', 'boolean'],
+
+            'stock_management_enabled' => [
+    'required',
+    'boolean',
+],
         ];
     }
 }

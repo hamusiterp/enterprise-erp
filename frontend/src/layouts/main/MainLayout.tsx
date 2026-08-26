@@ -17,6 +17,7 @@ import {
     CarOutlined,
     UserSwitchOutlined,
     FileProtectOutlined,
+    FileTextOutlined,
 
 } from '@ant-design/icons';
 
@@ -331,7 +332,76 @@ export default function MainLayout() {
     ),
     label: 'Access Policies',
 },
+{
+    key: '/settings/workflows',
+    icon: <ApartmentOutlined />,
+    label: 'Workflow Settings',
+},
+{
+  key: '/settings/units-of-measurement',
+  icon: <SettingOutlined />,
+  label: 'Units of Measurement',
+},
 ],
+},
+
+{
+  key: 'store-requisition',
+  icon: <FileTextOutlined />,
+  label: 'Store Requisition',
+  children: [
+
+    {
+      key: '/store/store-requisitions/create',
+      label: 'New SR',
+    },
+    {
+      key: '/store/store-requisitions',
+      label: 'SR List',
+    },
+    
+    {
+  key:
+    '/store/store-requisitions/approvals',
+
+  label:
+    'Approve SR',
+},
+    {
+  key:
+    '/store/store-requisitions/document-receiving',
+
+  label:
+    'Document Receiving',
+},
+    {
+  key:
+    '/store/store-requisitions/stock-check',
+
+  label:
+    'Stock Balance Check',
+},
+    {
+      key: '/store/store-requisitions/tracking',
+      label: 'Tracking',
+    },
+  ],
+},
+
+{
+  key: 'purchase-requisition',
+  icon: <FileTextOutlined />,
+  label: 'Purchase Requisition',
+  children: [
+
+    {
+  key:
+    '/store/purchase_requisitions/create-pr',
+
+  label:
+    'Create PR',
+},
+  ],
 },
             ],
             []

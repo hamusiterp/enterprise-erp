@@ -1,4 +1,9 @@
 import {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
   Col,
   Form,
   Input,
@@ -9,6 +14,14 @@ import {
 import type {
   FormInstance,
 } from 'antd';
+
+import {
+  fetchUnitsOfMeasurement,
+} from '../../../api/unitsOfMeasurement';
+
+import type {
+  UnitOfMeasurement,
+} from '../../../api/unitsOfMeasurement';
 
 import type {
   ItemFormValues,
@@ -76,49 +89,6 @@ const categoryOptions = [
   },
 ];
 
-const unitOptions = [
-  {
-    label: 'Piece',
-    value: 'Piece',
-  },
-  {
-    label: 'Box',
-    value: 'Box',
-  },
-  {
-    label: 'Pack',
-    value: 'Pack',
-  },
-  {
-    label: 'Set',
-    value: 'Set',
-  },
-  {
-    label: 'Kilogram',
-    value: 'Kilogram',
-  },
-  {
-    label: 'Gram',
-    value: 'Gram',
-  },
-  {
-    label: 'Liter',
-    value: 'Liter',
-  },
-  {
-    label: 'Meter',
-    value: 'Meter',
-  },
-  {
-    label: 'Roll',
-    value: 'Roll',
-  },
-  {
-    label: 'Carton',
-    value: 'Carton',
-  },
-];
-
 const typeOptions = [
   {
     label: 'Product',
@@ -146,6 +116,47 @@ function ItemForm({
   form,
   disabled = false,
 }: ItemFormProps) {
+  const [
+    units,
+    setUnits,
+  ] = useState<UnitOfMeasurement[]>([]);
+
+  const [
+    unitsLoading,
+    setUnitsLoading,
+  ] = useState(false);
+
+  useEffect(() => {
+    const loadUnits = async () => {
+      try {
+        setUnitsLoading(true);
+
+        const result =
+          await fetchUnitsOfMeasurement();
+
+        /*
+         * Only active UOMs may be selected
+         * during Item Registration.
+         */
+        setUnits(
+          result.filter(
+            (unit) =>
+              unit.is_active,
+          ),
+        );
+      } catch (error) {
+        console.error(
+          'Unable to load units of measurement.',
+          error,
+        );
+      } finally {
+        setUnitsLoading(false);
+      }
+    };
+
+    void loadUnits();
+  }, []);
+
   return (
     <Form<ItemFormValues>
       form={form}
@@ -211,28 +222,36 @@ function ItemForm({
           md={8}
         >
           <Form.Item
-            name="unit"
-            label="Unit"
+            name="uom_id"
+            label="Unit of Measurement"
             rules={[
               {
                 required: true,
                 message:
-                  'Unit is required.',
-              },
-              {
-                max: 20,
-                message:
-                  'Unit cannot exceed 20 characters.',
+                  'Please select a unit of measurement.',
               },
             ]}
           >
             <Select
               showSearch
               allowClear
-              options={unitOptions}
+              loading={
+                unitsLoading
+              }
+              disabled={
+                disabled
+              }
+              placeholder="Select unit of measurement"
               optionFilterProp="label"
-              placeholder="Select unit"
-              disabled={disabled}
+              options={units.map(
+                (unit) => ({
+                  value:
+                    unit.id,
+
+                  label:
+                    `${unit.code} - ${unit.name}`,
+                }),
+              )}
             />
           </Form.Item>
         </Col>
@@ -260,7 +279,9 @@ function ItemForm({
             <Select
               showSearch
               allowClear
-              options={typeOptions}
+              options={
+                typeOptions
+              }
               optionFilterProp="label"
               placeholder="Select item type"
               disabled={disabled}
@@ -338,7 +359,9 @@ function ItemForm({
             ]}
           >
             <Select
-              options={statusOptions}
+              options={
+                statusOptions
+              }
               placeholder="Select status"
               disabled={disabled}
             />

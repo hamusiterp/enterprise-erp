@@ -16,25 +16,38 @@ class ItemRequest extends FormRequest
     {
         $this->merge([
             'item_no' => trim((string) $this->item_no),
-            'item_description' => trim((string) $this->item_description),
-            'category' => trim((string) $this->category),
-            'unit' => trim((string) $this->unit),
-            'type' => trim((string) $this->type),
-            'inventory' => trim((string) $this->inventory),
-            'status' => strtolower((string) $this->status),
+
+            'item_description' =>
+                trim((string) $this->item_description),
+
+            'category' =>
+                trim((string) $this->category),
+
+            'type' =>
+                trim((string) $this->type),
+
+            'inventory' =>
+                trim((string) $this->inventory),
+
+            'status' =>
+                strtolower((string) $this->status),
         ]);
     }
 
     public function rules(): array
     {
         return [
-
             'item_no' => [
                 'nullable',
                 'string',
                 'max:30',
-                Rule::unique('sales_item', 'item_no')
-                    ->ignore($this->route('item')),
+
+                Rule::unique(
+                    'sales_item',
+                    'item_no'
+                )->ignore(
+                    $this->route('item')
+                ),
             ],
 
             'item_description' => [
@@ -49,14 +62,29 @@ class ItemRequest extends FormRequest
                 'max:50',
             ],
 
-            'unit' => [
+            /*
+             * UOM must come from the
+             * Units of Measurement master.
+             */
+            'uom_id' => [
                 'required',
-                'string',
-                'max:20',
+                'integer',
+
+                Rule::exists(
+                    'units_of_measurement',
+                    'id'
+                )->where(
+                    fn ($query) =>
+                        $query->where(
+                            'is_active',
+                            true
+                        )
+                ),
             ],
 
             'status' => [
                 'required',
+
                 Rule::in([
                     'active',
                     'inactive',
@@ -76,6 +104,7 @@ class ItemRequest extends FormRequest
 
             'inventory' => [
                 'required',
+
                 Rule::in([
                     'Stock',
                     'Non-Stock',
@@ -97,22 +126,23 @@ class ItemRequest extends FormRequest
                 'nullable',
                 'date',
             ],
-
         ];
     }
 
     public function messages(): array
     {
         return [
-
             'item_description.required'
                 => 'Item description is required.',
 
             'category.required'
                 => 'Category is required.',
 
-            'unit.required'
-                => 'Unit is required.',
+            'uom_id.required'
+                => 'Unit of measurement is required.',
+
+            'uom_id.exists'
+                => 'Please select a valid active unit of measurement.',
 
             'type.required'
                 => 'Item type is required.',
@@ -131,7 +161,6 @@ class ItemRequest extends FormRequest
 
             'item_no.unique'
                 => 'Item number already exists.',
-
         ];
     }
 }

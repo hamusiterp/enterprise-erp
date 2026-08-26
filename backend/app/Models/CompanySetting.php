@@ -34,12 +34,17 @@ class CompanySetting extends Model
         'is_active',
         'created_by',
         'updated_by',
+        'stock_management_enabled',
+        
     ];
 
     protected $casts = [
+        'stock_management_enabled' =>
+            'boolean',
         'is_active' => 'boolean',
     ];
 
+    
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

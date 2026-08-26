@@ -6,13 +6,33 @@ export type InventoryType =
   | 'Stock'
   | 'Non-Stock';
 
+export interface ItemUom {
+  id: number;
+  code: string;
+  name: string;
+  symbol: string | null;
+  decimal_places: number;
+}
+
 export interface Item {
   id: number;
 
   item_no: string;
   item_description: string;
   category: string;
-  unit: string;
+
+  /*
+   * Dynamic Unit of Measurement
+   */
+  uom_id: number | null;
+  uom: ItemUom | null;
+
+  /*
+   * Legacy field.
+   * Keep temporarily for existing old records.
+   */
+  unit?: string | null;
+
   status: ItemStatus;
 
   product_date: string | null;
@@ -35,7 +55,9 @@ export interface ItemFormValues {
 
   item_description: string;
   category: string;
-  unit: string;
+
+  uom_id: number;
+
   status: ItemStatus;
 
   product_date?: string | null;
@@ -51,7 +73,12 @@ export interface ItemFilters {
 
   status?: ItemStatus;
   category?: string;
+
+  /*
+   * Legacy filter support.
+   */
   unit?: string;
+
   type?: string;
   inventory?: InventoryType;
 

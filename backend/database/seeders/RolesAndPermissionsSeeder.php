@@ -47,6 +47,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'reporting-periods.manage',
             'access-policies.view',
             'access-policies.manage',
+            'workflow-settings.view',
+            'workflow-settings.manage',
+            'store-requisitions.view',
+            'store-requisitions.create',
+            'store-requisitions.submit',
+            'store-requisitions.approve',
+            'store-requisitions.return',
+            'store-requisitions.document-receive',
+            'store-requisitions.stock-check',
+            'units-of-measurement.view',
+            'units-of-measurement.manage',
+           
         ];
 
         foreach ($permissions as $permission) {

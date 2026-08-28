@@ -42,6 +42,8 @@ use App\Http\Controllers\Api\Store\StoreRequisitionStockCheckController;
 use App\Http\Controllers\Api\Store\StoreRequisitionPrApprovalController;
 use App\Http\Controllers\Api\Store\StoreRequisitionCreatePrController;
 use App\Http\Controllers\Api\Store\PurchaseRequisitionApprovalController;
+use App\Http\Controllers\Api\Store\UnitPriceRequestController;
+use App\Http\Controllers\Api\Store\AddUnitPriceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -1138,6 +1140,37 @@ Route::prefix(
             'action',
         ]
     )->whereNumber('task');
+});
+
+Route::prefix('store-requisitions/unit-price')->group(function () {
+    Route::get('/', [
+        UnitPriceRequestController::class,
+        'index'
+    ]);
+
+    Route::post('/{task}/request-price', [
+        UnitPriceRequestController::class,
+        'requestPrice'
+    ])->whereNumber('task');
+});
+
+Route::prefix('store-requisitions/add-unit-price')->group(function () {
+
+    Route::get('/', [
+        AddUnitPriceController::class,
+        'index'
+    ]);
+
+    Route::get('/suppliers', [
+        AddUnitPriceController::class,
+        'suppliers'
+    ]);
+
+    Route::post('/{item}', [
+        AddUnitPriceController::class,
+        'store'
+    ])->whereNumber('item');
+
 });
 
 Route::prefix('store-requisitions')

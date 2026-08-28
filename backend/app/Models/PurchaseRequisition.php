@@ -56,12 +56,9 @@ class PurchaseRequisition extends Model
     }
 
     public function project(): BelongsTo
-    {
-        return $this->belongsTo(
-            SalesProject::class,
-            'project_id'
-        );
-    }
+{
+    return $this->belongsTo(Project::class, 'project_id');
+}
 
     public function usedForDepartment(): BelongsTo
     {

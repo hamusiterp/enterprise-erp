@@ -48,6 +48,8 @@ import StoreRequisitionApprovalsPage from './pages/store/store-requisitions/appr
 import StoreRequisitionDocumentReceivingPage from './pages/store/store-requisitions/document-receiving';
 import StoreRequisitionStockCheckPage from './pages/store/store-requisitions/stock-check';
 import StoreRequisitionCreatePrPage from './pages/store/purchase_requisitions/create-pr';
+import UnitPriceRequestPage from './pages/store/store-requisitions/unit-price-request';
+import AddUnitPricePage from './pages/store/purchase_requisitions/add-unit-price';
 
 export default function App() {
     return (
@@ -243,6 +245,14 @@ export default function App() {
   element={
     <StoreRequisitionCreatePrPage />
   }
+/>
+<Route
+  path="/store/store-requisitions/unit-price-request"
+  element={<UnitPriceRequestPage />}
+/>
+<Route
+  path="/store/purchase-requisitions/add-unit-price"
+  element={<AddUnitPricePage />}
 />
                         
                 </Route>
